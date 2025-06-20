@@ -11,26 +11,16 @@ namespace libres
 		uint32_t	size;
 	};
 
-	bool init(core::e_game &game, int32_t &image_base);	
-
-#ifdef ANDROID
-	void *getsym(LPCSTR name);	
-#else
-	uint32_t getGpValue();
-
-	const char *getDiscId();
-	const char *getDiscVersion();
-	uint32_t getDiscVersionCode();
-#endif
-
+	bool init(core::e_game &game, int32_t &image_base);
+	
+	void *getsym(LPCSTR name);
+	
 	const char *getLibFileName();
 	void *getLoadAddress();
 	const std::vector<section_addr_space_t> &getExecutableSections();
 }
 
-#ifdef ANDROID
 template <typename T> inline T getsym(LPCSTR name)
 {
 	return cast<T>(libres::getsym(name));
 }
-#endif

@@ -14,10 +14,6 @@ namespace ui
 	void delete_menu();
 	void set_menu_active_item_index(int32_t index);
 	int32_t get_menu_active_item_index();
-
-#ifdef ANDROID
+	
 	void handle_touch(float x, float y);
-#else
-	void handle_psp_controls();
-#endif
 }

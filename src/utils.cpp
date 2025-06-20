@@ -15,31 +15,14 @@ namespace utils
 	void log(const char *fmt, ...)
 	{
 		CS_SCOPE(mutex::mlog);
-
-#ifdef ANDROID
 		va_list lst;
 		va_start(lst, fmt);
 		__android_log_vprint(ANDROID_LOG_DEBUG, "AB", fmt, lst);
 		va_end(lst);
-#else
-		char str[256];
-		va_list lst;
-		va_start(lst, fmt);
-		vsprintf(str, fmt, lst);
-		va_end(lst);
-		printf(str);
-		printf("\n");
-		pspDebugScreenPrintf(str);
-		pspDebugScreenPrintf("\n");
-#endif
 		if (!log_file)
 		{
-#ifdef ANDROID
-			char str[1024];
-			sprintf(str, "%s/cleo/cleo.log", getenv("EXTERNAL_STORAGE"));
-#else
-			char str[] = "ms0:/PSP/PLUGINS/cleo/cleo.log";
-#endif
+		    char str[1024];
+		    sprintf(str, "%s/cleo/cleo.log", getenv("EXTERNAL_STORAGE"));
 			remove(str);
 			log_file = fopen(str, "wt");
 		}
@@ -81,36 +64,21 @@ namespace utils
 
 	bool list_files_in_dir(std::string dir, std::vector<std::string> &files)
 	{
-#ifdef ANDROID
 	    DIR *dp;
 	    struct dirent *dirp;
 	    if ((dp = opendir(dir.c_str())) == NULL) return false;
 	    while ((dirp = readdir(dp)) != NULL)
 	        files.push_back(std::string(dirp->d_name));
 	    closedir(dp);
-#else		
-		int fd = sceIoDopen(dir.c_str());
-		if (fd < 0) return false;
-		SceIoDirent dirp;
-		memset(&dirp, 0, sizeof(dirp));
-		while (sceIoDread(fd, &dirp) > 0)
-			if((dirp.d_stat.st_attr & FIO_SO_IFDIR) == 0)
-				files.push_back(std::string(dirp.d_name));
-		sceIoDclose(fd);
-#endif
 	    if (files.size())
-	    	sort(files.begin(), files.end(), string_compare);
+	        sort(files.begin(), files.end(), string_compare);
 	    return true;
 	}
 
 	uint8_t *load_binary_file(std::string filename, uint32_t &size)
 	{
-#ifdef ANDROID
-		FILE *file = fopen(filename.c_str(), "rb");
-#else
-		FILE *file = fopen(filename.c_str(), "r");
-#endif
-		if (!file) return NULL;
+	    FILE *file = fopen(filename.c_str(), "rb");
+	    if (!file) return NULL;
 		fseek(file, 0, SEEK_END);
 		size = ftell(file);
 		fseek(file, 0, SEEK_SET);
@@ -119,7 +87,4 @@ namespace utils
 		fclose(file);
 		return buf;
 	}
-
 }
-
-

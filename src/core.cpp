@@ -13,10 +13,6 @@
 #include "mutex.h"
 #include "memutils.h"
 
-#ifndef ANDROID
-#include "psplang.h"
-#endif
-
 namespace core
 {
 	e_game game;
@@ -334,12 +330,7 @@ namespace core
 	{		
 		//utils::log("CText::Get(): %s", name);
 		CTextHandle = thiz;
-
-#ifndef ANDROID
-		if (CTextHandle && !psplang::is_init())
-			psplang::init();
-#endif
-
+		
 		uint16_t *e = text::get_gxt_entry(name);
 		return e ? e : CText__Get_(thiz, name);
 	}
@@ -351,9 +342,7 @@ namespace core
 		uint16_t *e = useCustom ? text::get_gxt_entry(name) : NULL;
 		return e ? e : CText__Get_(CTextHandle, name);
 	}
-
-#ifdef ANDROID
-
+	
 	// @AND_TouchEvent
 	typedef void (*fn_AND_TouchEvent)(e_touch, int32_t, int32_t, int32_t);
 	fn_AND_TouchEvent _AND_TouchEvent, AND_TouchEvent_;
@@ -375,33 +364,13 @@ namespace core
 		AND_KeyboardEvent_(pressed, id, a, isGamepad);
 	}
 
-#else
-
-	// sceCtrlReadBufferPositive
-	int LCSVCS_sceCtrlReadBufferPositive(SceCtrlData *pad_data, int count)
-	{
-		int res = sceCtrlReadBufferPositive(pad_data, count);
-		touch::psp_input_event(pad_data);
-		ui::handle_psp_controls();
-		return res;
-	}
-
-#endif
-
 	// legacy external storage path
 	std::string get_storage_dir()
-	{		
-#ifdef ANDROID
-		char dir[1024];
-		sprintf(dir, "%s/cleo/%s/", getenv("EXTERNAL_STORAGE"), select("iii", "vc", "sa", "lcs", ""));
-#else		
-		char dir[64];
-		sprintf(dir, "ms0:/PSP/PLUGINS/cleo/%s/", select("", "", "", "lcs", "vcs"));
-#endif
+	{
+	    char dir[1024];
+	    sprintf(dir, "%s/cleo/%s/", getenv("EXTERNAL_STORAGE"), select("iii", "vc", "sa", "lcs", ""));
 		return dir;
 	}
-
-#ifdef ANDROID
 
 	// @base::BcfOpen LCS
 	// workaround for wad archives
@@ -475,11 +444,7 @@ namespace core
 		}
 		return OS_FileOpen_(OSFileDataArea, handle, fname, OSFileAccessType);
 	}
-
-#endif
-
-#ifdef ANDROID
-
+	
 	bool bActivityInit = false;
 
 	// reads package name, version, loads plugins, called once on activity init
@@ -551,9 +516,7 @@ namespace core
 			OnActivityInit(getJNIEnv(), thiz);
 		}
 	}
-
-#endif
-
+	
 	uint32_t VC3LCS_CRunningScript__ProcessOneCommand_call_1,
 			 VC3LCS_CRunningScript__ProcessOneCommand_call_2,
 			 SA_CRunningScript__ProcessOneCommand_call,
@@ -570,7 +533,6 @@ namespace core
 		// CRunningScript__ProcessOneCommand
 		switch (game)
 		{
-#ifdef ANDROID
 		case GTA3:
 			FIND_PATTERN("20 46 ?? ?? ?? ?? 00 28 FA D0");	// 1.4, 1.6, 1.8
 			VC3LCS_CRunningScript__ProcessOneCommand_call_1 = addr + 2;
@@ -598,26 +560,12 @@ namespace core
 						  PATTERN_NOT_FOUND;
 			}
 			break;
-#endif
 		case GTALCS:
-#ifdef ANDROID
 			FIND_PATTERN("04 00 A0 E1 ?? ?? ?? EB 00 00 50 E3 FB FF FF 0A");
 			VC3LCS_CRunningScript__ProcessOneCommand_call_1 = addr + 4;
-#else
-			FIND_PATTERN("2B 20 A4 00 07 00 80 14 00 00 00 00");
-			VC3LCS_CRunningScript__ProcessOneCommand_call_1 = addr + 12;
-#endif
-			
 			break;
-#ifndef ANDROID
-		case GTAVCS:
-			FIND_PATTERN("2B 20 A4 00 07 00 80 14 00 00 00 00 ?? ?? ?? ?? 25 20 00 02");
-			VC3LCS_CRunningScript__ProcessOneCommand_call_1 = addr + 12;
-			break;
-#endif
 		}
-
-#ifdef ANDROID
+		
 		//NvEventQueueActivity__init
 		if (game == GTA3 || game == GTAVC || game == GTASA)
 		{
@@ -644,14 +592,12 @@ namespace core
 				PATTERN_NOT_FOUND;
 			VC3SA_NvEventQueueActivity__init_ptr = cast<uint32_t>(init_ptr);
 		}
-#endif
-
+		
 		return true;
 	}
-
+	
 	void init_fixes()
 	{
-#ifdef ANDROID
 		if (game_ver == VER_GTASA_1_06 ||
 			game_ver == VER_GTASA_1_05_GER ||
 			game_ver == VER_GTASA_1_07 ||
@@ -678,15 +624,13 @@ namespace core
 			memutils::mem_write_arr(cast<ptr>(SA_CRunningScript__ProcessOneCommand_call), arr, sizeof(arr), true);
 			SA_CRunningScript__ProcessOneCommand_call += 2;
 		}
-#endif
 	}
 
 	bool init_code()
 	{
 		if (!init_pattern())
 			return false;
-
-#ifdef ANDROID
+		
 		if (game == GTA3 || game == GTAVC || game == GTASA)
 		{
 			// common names
@@ -761,10 +705,8 @@ namespace core
 			void *func_ptr = cast<void *>(&NvEventQueueActivity_init);
 			memutils::mem_write_arr(cast<ptr>(VC3SA_NvEventQueueActivity__init_ptr), cast<ptr>(&func_ptr), 4, true);
 		} else
-#endif
 		if (game == GTALCS)
 		{
-#ifdef ANDROID
 			ScriptParams = getsym<uint32_t *>("ScriptParams");
 			CTimer__m_snTimeInMilliseconds = getsym<uint32_t *>("_ZN6CTimer22m_snTimeInMillisecondsE");
 			CTheScripts__ScriptSpace_LCS = getsym<ptr*>("_ZN11CTheScripts11ScriptSpaceE");
@@ -780,62 +722,7 @@ namespace core
 			windowSizeLCS = getsym<_windowSizeLCS *>("Height");
 			LCS_CRunningScript__CollectParameters = getsym<fn_LCS_CRunningScript__CollectParameters>("_ZN14CRunningScript17CollectParametersEPjiPi");
 			_LCS_CTheScripts__Init = getsym<fn_LCS_CTheScripts__Init>("_ZN11CTheScripts4InitEb"); //
-#else			
-			uint32_t addr;
-
-			#define READ_ADDR(addr1, addr2) ((static_cast<uint32_t>(*cast<uint16_t *>(addr1)) << 16) | *cast<uint16_t *>(addr2))
-			#define READ_ADDR_INDIRECT(addr1, addr2) (READ_ADDR(addr1, addr2) - 0x10000)
-
-			// ScriptParams
-			FIND_PATTERN("00 00 00 00 ?? ?? 04 3C ?? ?? 84 8C 08 00 81 04");
-			ScriptParams = cast<uint32_t *>(READ_ADDR_INDIRECT(addr + 4, addr + 8));
-
-			// _ZN6CTimer22m_snTimeInMillisecondsE
-			FIND_PATTERN("?? ?? 05 3C ?? ?? A5 8C 2B 20 A4 00 07 00 80 14");
-			CTimer__m_snTimeInMilliseconds = cast<uint32_t *>(READ_ADDR_INDIRECT(addr, addr + 4));
-
-			// _ZN11CTheScripts11ScriptSpaceE
-			FIND_PATTERN("E0 FF BD 27 10 00 BF AF ?? ?? 05 3C ?? ?? A5 8C 18 00 86 8C");
-			CTheScripts__ScriptSpace_LCS = cast<ptr*>(READ_ADDR_INDIRECT(addr + 8, addr + 12));
-
-			// _ZN11CTheScripts14pActiveScriptsE
-			FIND_PATTERN("25 38 00 01 ?? ?? 08 3C ?? ?? 09 8D 00 00 16 34");
-			CTheScripts__pActiveScripts = cast<ptr>(READ_ADDR_INDIRECT(addr + 4, addr + 8));
-
-			// _ZN11CTheScripts14StartNewScriptEi
-			FIND_PATTERN("E0 FF BD 27 ?? ?? 05 3C 14 00 B1 AF ?? ?? B1 8C 10 00 B0 AF");
-			CTheScripts__StartNewScript = cast<fn_CTheScripts__StartNewScript>(addr);
-
-			// _ZN14CRunningScript17ProcessOneCommandEv
-			FIND_PATTERN("E0 FF BD 27 10 00 BF AF ?? ?? 05 3C ?? ?? A5 8C 18 00 86 8C");
-			_CRunningScript__ProcessOneCommand = cast<fn_CRunningScript__ProcessOneCommand>(addr); //
-
-			// _ZN5CText3GetEPKc
-			FIND_PATTERN("D0 FF BD 27 14 00 B0 AF 18 00 B1 AF 1C 00 B2 AF 10 00 B2 27");
-			_CText__Get = cast<fn_CText__Get>(addr);
-
-			// _ZN14CRunningScript26GetPointerToScriptVariableEPjh
-			FIND_PATTERN("E0 FF BD 27 10 00 BF AF ?? ?? ?? ?? FF 00 C6 30");
-			VC3LCS_CRunningScript__GetPointerToScriptVariable = cast<fn_VC3LCS_CRunningScript__GetPointerToScriptVariable>(addr);
-
-			// _ZN11CTheScripts14SaveAllScriptsEPhPj
-			FIND_PATTERN("00 00 07 34 ?? ?? 06 3C ?? ?? C9 8C 21 40 27 01");
-			_VC3LCS_CTheScripts__Save = cast<fn_VC3LCS_CTheScripts__Save>(addr - 0x2C);			
-
-			// _ZN14CRunningScript17CollectParametersEPjiPi
-			FIND_PATTERN("1C 00 E4 48 1D 00 E5 48 00 00 A5 8C");
-			LCS_CRunningScript__CollectParameters = cast<fn_LCS_CRunningScript__CollectParameters>(addr);
-
-			// _ZN11CTheScripts4InitEb
-			FIND_PATTERN("60 FF BD 27 60 00 B4 E7 64 00 B6 E7 68 00 B8 E7");
-			_LCS_CTheScripts__Init = cast<fn_LCS_CTheScripts__Init>(addr); //
-
-			// sceCtrlReadBufferPositive
-			FIND_PATTERN("25 80 80 00 14 00 A4 27 01 00 11 34");
-			ptr _sceCtrlReadBufferPositiveutils_call = cast<ptr>(addr + 12);
-#endif
 			
-#ifdef ANDROID
 			// lcs calls CTheScripts::Load() inside of CTheScripts::Init()
 			armhook::hook_arm_func(_VC3LCS_CTheScripts__Save, 4, VC3LCS_CTheScripts__Save, &VC3LCS_CTheScripts__Save_);
 			CRunningScript__ProcessOneCommand_ = _CRunningScript__ProcessOneCommand;
@@ -845,79 +732,7 @@ namespace core
 			armhook::hook_arm_func(_AND_TouchEvent, 4, AND_TouchEvent, &AND_TouchEvent_);			
 			armhook::hook_arm_func(_LCS_base_BcfOpen, 4, LCS_base_BcfOpen, &LCS_base_BcfOpen_);
 			armhook::hook_arm_func(_LCS_callVoid, 4, LCS_callVoid, &LCS_callVoid_);
-#else
-			armhook::hook_mips_func(_VC3LCS_CTheScripts__Save, 8, VC3LCS_CTheScripts__Save, &VC3LCS_CTheScripts__Save_);
-			CRunningScript__ProcessOneCommand_ = _CRunningScript__ProcessOneCommand;
-			armhook::replace_mips_call(VC3LCS_CRunningScript__ProcessOneCommand_call_1, CRunningScript__ProcessOneCommand);
-			armhook::hook_mips_func(_LCS_CTheScripts__Init, 8, LCS_CTheScripts__Init, &LCS_CTheScripts__Init_);
-			armhook::hook_mips_func(_CText__Get, 8, CText__Get, &CText__Get_);
-			armhook::replace_mips_call(_sceCtrlReadBufferPositiveutils_call, cast<ptr>(LCSVCS_sceCtrlReadBufferPositive));
-#endif
 		}
-#ifndef ANDROID
-		else
-		if (game == GTAVCS)
-		{
-			uint32_t addr;
-
-			#define READ_ADDR_GP(addr) (libres::getGpValue() + *cast<int16_t *>(addr))
-			
-			// ScriptParams
-			FIND_PATTERN("?? ?? 11 3C 00 00 B0 AF ?? ?? 30 26");
-			ScriptParams = cast<uint32_t *>(READ_ADDR(addr, addr + 8));
-
-			// _ZN6CTimer22m_snTimeInMillisecondsE
-			FIND_PATTERN("?? ?? 86 8F B3 3E 07 3C 2B 28 C5 00");
-			CTimer__m_snTimeInMilliseconds = cast<uint32_t *>(READ_ADDR_GP(addr));
-			
-			// _ZN11CTheScripts11ScriptSpaceE
-			FIND_PATTERN("18 00 A4 8F ?? ?? 84 AF");
-			CTheScripts__ScriptSpace_LCS = cast<ptr*>(READ_ADDR_GP(addr + 4));
-
-			// _ZN11CTheScripts14pActiveScriptsE
-			FIND_PATTERN("08 00 25 AE 10 00 30 AE ?? ?? 85 27");
-			CTheScripts__pActiveScripts = cast<ptr>(READ_ADDR_GP(addr + 8));
-
-			// _ZN11CTheScripts14StartNewScriptEi
-			FIND_PATTERN("F0 FF BD 27 00 00 B0 AF 04 00 B1 AF ?? ?? 91 8F");
-			CTheScripts__StartNewScript = cast<fn_CTheScripts__StartNewScript>(addr);
-
-			// _ZN14CRunningScript17ProcessOneCommandEv
-			FIND_PATTERN("F0 FF BD 27 08 00 BF AF ?? ?? 85 8F 10 00 86 8C");
-			_CRunningScript__ProcessOneCommand = cast<fn_CRunningScript__ProcessOneCommand>(addr); //
-			
-			// _ZN5CText3GetEPKc
-			FIND_PATTERN("08 00 B1 AF 25 80 A0 00 25 88 80 00 00 00 A0 A3");
-			_CText__Get = cast<fn_CText__Get>(addr - 8);
-
-			// GetPointerToScriptVariable
-			FIND_PATTERN("00 00 A6 8C ?? ?? 87 8F 01 00 C8 24");
-			VC3LCS_CRunningScript__GetPointerToScriptVariable = cast<fn_VC3LCS_CRunningScript__GetPointerToScriptVariable>(addr);
-
-			// _ZN11CTheScripts14SaveAllScriptsEPhPj
-			FIND_PATTERN("1C 00 BF AF ?? ?? 06 34");
-			_VC3LCS_CTheScripts__Save = cast<fn_VC3LCS_CTheScripts__Save>(addr - 0x1C);
-
-			// _ZN14CRunningScript17CollectParametersEPjiPi
-			FIND_PATTERN("1C 00 E4 48 1D 00 E5 48 00 00 A5 8C");
-			LCS_CRunningScript__CollectParameters = cast<fn_LCS_CRunningScript__CollectParameters>(addr);
-
-			// _ZN11CTheScripts4InitEb
-			FIND_PATTERN("60 00 B7 AF 64 00 BE AF 68 00 BF AF FF 00 84 30");
-			_LCS_CTheScripts__Init = cast<fn_LCS_CTheScripts__Init>(addr - 0x34); //
-
-			// sceCtrlReadBufferPositive
-			FIND_PATTERN("25 80 80 00 04 00 A4 27 01 00 11 34");
-			ptr _sceCtrlReadBufferPositiveutils_call = cast<ptr>(addr + 12);
-
-			armhook::hook_mips_func(_VC3LCS_CTheScripts__Save, 8, VC3LCS_CTheScripts__Save, &VC3LCS_CTheScripts__Save_);
-			CRunningScript__ProcessOneCommand_ = _CRunningScript__ProcessOneCommand;
-			armhook::replace_mips_call(VC3LCS_CRunningScript__ProcessOneCommand_call_1, CRunningScript__ProcessOneCommand);
-			armhook::hook_mips_func(_LCS_CTheScripts__Init, 8, LCS_CTheScripts__Init, &LCS_CTheScripts__Init_);
-			armhook::hook_mips_func(_CText__Get, 8, CText__Get, &CText__Get_);
-			armhook::replace_mips_call(_sceCtrlReadBufferPositiveutils_call, cast<ptr>(LCSVCS_sceCtrlReadBufferPositive));
-		}
-#endif
 		
 		return true;
 	}
@@ -939,8 +754,7 @@ namespace core
 			utils::log("initialize failed - can't resolve game's main library");
 			return;
 		}
-
-#ifdef ANDROID
+		
 		// get game version, it is detected using difference between few exported funcs
 		uint32_t func1 = getsym<uint32_t>("GetJavaVM"),
 				 func2 = getsym<uint32_t>("crc32"),
@@ -966,29 +780,15 @@ namespace core
 					   game == GTAVC  ? VER_GTAVC_1_09_OR_HIGHER :
 					   game == GTASA  ? VER_GTASA_2_00_OR_HIGHER :
 					   game == GTALCS ? VER_GTALCS_2_4_OR_HIGHER : VER_NONE;
-#else
-		game_ver = game == GTALCS ? VER_GTALCS_PSP_1_05_OR_HIGHER : VER_GTAVCS_PSP_1_02_OR_HIGHER;
-#endif
 
 		// print game version
 		utils::log("game ver: %s", str_game_version[game_ver]);
-
-#ifndef ANDROID
-		utils::log("disc: %s ver: %s code: 0x%08X", libres::getDiscId(), libres::getDiscVersion(), libres::getDiscVersionCode());
-		package_name = libres::getDiscId();
-		package_version_name = libres::getDiscVersion();
-		package_version_code = libres::getDiscVersionCode();
-#endif
-
+		
 		// init armhook
-#ifdef ANDROID
 		if (game == GTALCS)
 			armhook::init(getsym<uint8_t *>("_Z9decodePNGRSt6vectorIhSaIhEERmS3_PKhjb"), 8096); // ARM
 		else
 			armhook::init(getsym<uint8_t *>("_Z10EnumStringj") - 1, 8096);
-#else
-		armhook::init();
-#endif
 
 		// init code
 		if (init_code())
@@ -1008,18 +808,12 @@ namespace core
 		text::init();
 
 		utils::log("initialize success");
-
-#ifndef ANDROID
-		plugins::init(get_storage_dir(), get_storage_dir());
-#endif
 	}
 
 	// script code buf
-#ifdef ANDROID
 	uint8_t script_code_buf[2*1024*1024];
 	uint32_t script_code_buf_offset = 0;
-#endif
-
+	
 	// copies script to the buf and adds it to the list
 	void preload_script(std::string fname, const uint8_t *code, uint32_t code_size, bool is_invokable, uint32_t invokable_id)
 	{
@@ -1038,12 +832,8 @@ namespace core
 			}
 		}
 		uint8_t *script_code;
-#ifdef ANDROID		
 		script_code = &script_code_buf[script_code_buf_offset];
 		script_code_buf_offset += code_size;
-#else
-		script_code = new uint8_t[code_size + 8];		
-#endif
 		memcpy(script_code, code, code_size);
 
 		// fill script desc and add it to the scripts arr
@@ -1069,15 +859,10 @@ namespace core
 	    std::vector<std::string> files;
 	    utils::list_files_in_dir(dir, files);
 	    // clear scripts
-#ifdef ANDROID		
-		script_code_buf_offset = 0;
-#endif
+	    script_code_buf_offset = 0;
 		for (int i = 0; i < scripts.size(); i++)
 		{
-#ifndef ANDROID
-			delete[] scripts[i]->code;
-#endif
-			delete scripts[i];
+		    delete scripts[i];
 		}
 		scripts.clear();
 		// init gxt entries
@@ -1087,8 +872,7 @@ namespace core
 		// init script menu for sa
 		switch (game)
 		{
-#ifdef ANDROID
-			case GTA3:
+		    case GTA3:
 				preload_script("menu", gta3_menu_script, sizeof(gta3_menu_script), false, 0);
 				break;
 			case GTAVC:
@@ -1097,15 +881,9 @@ namespace core
 			case GTASA:
 				preload_script("menu", sa_menu_script, sizeof(sa_menu_script), false, 0);
 				break;
-#endif
 			case GTALCS:
 				preload_script("menu", lcs_menu_script, sizeof(lcs_menu_script), false, 0);
 				break;
-#ifndef ANDROID
-			case GTAVCS:
-				preload_script("menu", vcs_menu_script, sizeof(vcs_menu_script), false, 0);
-				break;
-#endif
 		}
 		// check all found files
 		uint32_t invokable_count = 0;
@@ -1329,24 +1107,11 @@ namespace core
 				 OP_JF = 0x4D,
 				 OP_CALL = 0x50,
 				 OP_RET = 0x51,
-#ifdef ANDROID
 				 OP_KEY = 0xE1,
 				 OP_NOT_KEY = 0x80E1,
-#endif
 				 OP_ENDTHREAD = 0x4E,
 				 OP_ENDCUSTOMTHREAD = 0x05DC;
-
-#ifndef ANDROID
-		if (game == GTAVCS)
-		{
-			OP_JT = 0x21;
-			OP_JF = 0x22;
-			OP_CALL = 0x25;
-			OP_RET = 0x26;
-			OP_ENDTHREAD = 0x23;
-		}
-#endif
-
+				 
 		bool result;
 		do
 		{
@@ -1361,7 +1126,6 @@ namespace core
 			if (handle_found)
 			{
 				//utils::log("%s %X %X op %04X", cast<char *>(handle + select(8, 8, 8, 16, 0x20F)), handle, ip - code, op);
-#ifdef ANDROID
 				bool check_touch_point = (game != GTALCS) && (game != GTAVCS) &&
 										 (op == OP_KEY || op == OP_NOT_KEY) &&
 										 (*cast<uint16_t *>(ip + 2) == 0x304) &&
@@ -1381,7 +1145,6 @@ namespace core
 					setfield<ptr>(handle, select(0x10, 0x10, 0x14, 0, 0), ip);
 					result = false;
 				} else
-#endif
 				if (op == OP_J || op == OP_JT || op == OP_JF || op == OP_CALL)
 				{
 					// move to opcode param
@@ -1501,12 +1264,8 @@ namespace core
 			//utils::log("OP_GET_FUNC_ADDR_CSTR");
 			uint32_t *v = cast<uint32_t *>(CRunningScript__GetPointerToScriptVariable(script.handle, 0));
 			CRunningScript__CollectParameters(script.handle, 1);			
-#ifdef ANDROID
 			LPSTR func_name = cast<LPSTR>(ScriptParams[0]);
 			*v = getsym<uint32_t>(func_name);
-#else
-			*v = 0;
-#endif
 			//utils::log("func '%s' addr is 0x%X", func_name, *v);
 			return true;
 		}
@@ -1541,11 +1300,7 @@ namespace core
 		{
 			//utils::log("OP_GET_PLATFORM");
 			uint32_t *v = cast<uint32_t *>(CRunningScript__GetPointerToScriptVariable(script.handle, 0));
-#ifdef ANDROID
 			*v = 1;
-#else
-			*v = 2;
-#endif
 			return true;
 		}
 		case OP_GET_GAME_VER:
@@ -1608,12 +1363,7 @@ namespace core
 			uint32_t *id = cast<uint32_t *>(CRunningScript__GetPointerToScriptVariable(script.handle, 0));
 			uint32_t *ver = cast<uint32_t *>(CRunningScript__GetPointerToScriptVariable(script.handle, 0));
 			uint32_t *ver_code = cast<uint32_t *>(CRunningScript__GetPointerToScriptVariable(script.handle, 0));
-#ifdef ANDROID
 			*id = strutils::str_hash(package_name);
-#else
-			*id = 0;
-			sscanf(package_name.c_str() + 4, "%d", id);			
-#endif
 			*ver = strutils::str_hash(package_version_name);
 			*ver_code = package_version_code;
 			return true;
@@ -1660,16 +1410,6 @@ namespace core
 			uint32_t addr = ScriptParams[0];
 			uint32_t add_ib = ScriptParams[1];
 			if (add_ib) addr += image_base;
-
-#ifndef ANDROID
-			int params_i[8];
-			memset(params_i, 0, sizeof(params_i));
-
-			float params_f[8];
-			memset(params_f, 0, sizeof(params_f));
-
-			bool is_res_float = false;	
-#endif
 
 			uint32_t params_a[32]; // any
 			memset(params_a, 0, sizeof(params_a));
@@ -1736,9 +1476,6 @@ namespace core
 				if (str == "resf")
 				{
 					res_ptr = CRunningScript__GetPointerToScriptVariable(script.handle, 0);
-#ifndef ANDROID
-					is_res_float = true;
-#endif
 				} else
 				{
 					utils::log("func call has unknown param type '%s'", str.c_str());
@@ -1754,29 +1491,10 @@ namespace core
 						utils::log("func call has more than 32 params");
 						exit(1);
 					}
-#ifdef ANDROID
 					params_a[params_a_count++] = (pt == ptInt ? int_val : *cast<uint32_t *>(&float_val));
-#else
-					if (pt == ptInt)
-					{
-						if (params_i_count < 8)
-							params_i[params_i_count++] = int_val;
-						else
-							params_a[params_a_count++] = int_val;							
-					} else
-					{
-						if (params_f_count < 8)
-							params_f[params_f_count++] = float_val;
-						else {
-							void *float_ptr = &float_val;
-							params_a[params_a_count++] = *cast<uint32_t *>(float_ptr);
-						}
-					}
-#endif
 				}
 			}
-
-#ifdef ANDROID
+			
 			typedef uint32_t (*func_t)(
 				uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t,
 				uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, 
@@ -1791,67 +1509,27 @@ namespace core
 			);
 			if (res_ptr)
 				*cast<uint32_t *>(res_ptr) = res;
-#else
-			#define PARAM_TYPES \
-				uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, \
-				float,    float,    float,    float,    float,    float,    float,    float,    \
-				uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, \
-				uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, \
-				uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t
-
-			#define PARAM_VALS \
-				params_i[0],  params_i[1],  params_i[2],  params_i[3],  params_i[4],  params_i[5],  params_i[6],  params_i[7],  \
-				params_f[0],  params_f[1],  params_f[2],  params_f[3],  params_f[4],  params_f[5],  params_f[6],  params_f[7],  \
-				params_a[0],  params_a[1],  params_a[2],  params_a[3],  params_a[4],  params_a[5],  params_a[6],  params_a[7],  \
-				params_a[8],  params_a[9],  params_a[10], params_a[11], params_a[12], params_a[13], params_a[14], params_a[15], \
-				params_a[16], params_a[17],	params_a[18], params_a[19], params_a[20], params_a[21], params_a[22], params_a[23]
-
-			if (!is_res_float)
-			{
-				typedef uint32_t (*func_i_t)(PARAM_TYPES);
-				uint32_t res = cast<func_i_t>(addr)(PARAM_VALS);
-				if (res_ptr)
-					*cast<uint32_t *>(res_ptr) = res;
-			} else
-			{
-				typedef float (*func_f_t)(PARAM_TYPES);
-				float res = cast<func_f_t>(addr)(PARAM_VALS);
-				if (res_ptr)
-					*cast<float *>(res_ptr) = res;
-			}
-
-			#undef PARAM_VALS
-			#undef PARAM_TYPES			
-#endif
-
+			
 			return true;
 		}
 		case OP_GET_TOUCH_POINT_STATE:
 		{
 			uint32_t *v = cast<uint32_t *>(CRunningScript__GetPointerToScriptVariable(script.handle, 0));
 			CRunningScript__CollectParameters(script.handle, 2);
-#ifdef ANDROID
 			uint32_t p = ScriptParams[0];
 			uint32_t mintime = ScriptParams[1];
 			*v = (touch::point_touched_timed(p, mintime)) ? 1 : 0;
-#else
-			*v = 0;
-#endif
 			return true;
 		}
 		case OP_GET_TOUCH_SLIDE_STATE:
 		{
 			uint32_t *v = cast<uint32_t *>(CRunningScript__GetPointerToScriptVariable(script.handle, 0));
 			CRunningScript__CollectParameters(script.handle, 4);
-#ifdef ANDROID
 			uint32_t p_from = ScriptParams[0];
 			uint32_t p_to = ScriptParams[1];
 			uint32_t mintime = ScriptParams[2];
 			uint32_t maxtime = ScriptParams[3];
 			*v = (touch::point_slide_done(p_from, p_to, mintime, maxtime)) ? 1 : 0;
-#else
-			*v = 0;
-#endif
 			return true;
 		}
 		case OP_GET_MENU_BUTTON_STATE:
@@ -1872,25 +1550,14 @@ namespace core
 		{
 			uint32_t *v = cast<uint32_t *>(CRunningScript__GetPointerToScriptVariable(script.handle, 0));
 			CRunningScript__CollectParameters(script.handle, 1);
-#ifndef ANDROID
-			uint32_t index = ScriptParams[0];
-			*v = (touch::psp_control_pressed((ePspControl)index)) ? 1 : 0;
-#else
 			*v = 0;
-#endif
 			return true;
 		}
 		case OP_GET_PSP_CONTROL_PRESSED:
 		{
 			uint32_t *v = cast<uint32_t *>(CRunningScript__GetPointerToScriptVariable(script.handle, 0));
 			CRunningScript__CollectParameters(script.handle, 2);
-#ifndef ANDROID
-			uint32_t index = ScriptParams[0];
-			uint32_t mintime = ScriptParams[1];
-			*v = (touch::psp_control_pressed_timed((ePspControl)index, mintime)) ? 1 : 0;
-#else
 			*v = 0;
-#endif
 			return true;
 		}
 		case OP_INVOKABLE_SCRIPT_STATS:
@@ -1952,12 +1619,12 @@ namespace core
 		}
 		case OP_SHOW_MENU_OPEN_ARROW:
 		{
-			//ui::show_arrow();
+		    ui::show_arrow();
 			return true;
 		}
 		case OP_HIDE_MENU_OPEN_ARROW:
 		{
-			//ui::hide_arrow();
+		    ui::hide_arrow();
 			return true;
 		}
 		case OP_CREATE_MENU:
@@ -1979,9 +1646,6 @@ namespace core
 				addr++;
 			}
 			addr++;
-#ifndef ANDROID
-			title = psplang::localize(title);
-#endif
 			// read close button title
 			std::string titleclose;
 			while (*cast<char *>(addr))
@@ -1990,9 +1654,6 @@ namespace core
 				addr++;
 			}
 			addr++;
-#ifndef ANDROID
-			titleclose = psplang::localize(titleclose);
-#endif
 			// read items
 			std::vector<wide_string> items;
 			while (*cast<char *>(addr) && item_count)
@@ -2030,10 +1691,6 @@ namespace core
 						}
 					}
 				}
-#ifndef ANDROID
-				if (!bGxtEntryExists)
-					w_item = strutils::wstr_from_ansi(psplang::localize(a_item).c_str());	
-#endif
 				if (bGxtEntryExists && maxItemStrSize && w_item.size() > maxItemStrSize)
 					w_item.erase(maxItemStrSize);
 				items.push_back(w_item);
@@ -2074,5 +1731,3 @@ namespace core
 		}
 	}
 }
-
-

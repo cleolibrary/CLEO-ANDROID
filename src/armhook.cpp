@@ -5,10 +5,8 @@
 
 namespace armhook
 {
-#ifdef ANDROID
-
-	#define	STEP_NEAR 16
-	#define STEP_FAR 32
+    #define STEP_NEAR 16
+    #define STEP_FAR 32
 
 	#define SIZE_FAR 4096
 
@@ -99,62 +97,4 @@ namespace armhook
 		memutils::mem_write_arm_long_jmp(g_near_space, func_to, true);
 		g_near_space += STEP_NEAR;
 	}
-
-#else
-
-	void init()
-	{
-	}
-
-	void replace_mips_call(ptr addr, ptr func_to)
-	{
-		memutils::mem_write_mips_call(addr, func_to, false);
-	}
-
-	void hook_mips_func(ptr func, uint32_t startSize, ptr func_to, ptr *func_orig)
-	{
-		uint8_t *space = cast<uint8_t *>(malloc(startSize + 32));
-		while ((cast<uint32_t>(space) & 0x0F) != (cast<uint32_t>(func) & 0x0F))
-			space++;
-		memutils::mem_write_arr(space, func, startSize);
-		memutils::mem_write_mips_jmp(space + startSize, func + startSize, true);
-		*func_orig = space;
-		memutils::mem_write_mips_jmp(func, func_to, true);
-	}
-
-	std::vector<ptr> find_mips_func_calls(ptr func)
-	{
-		uint32_t code = 0x0C000000 | ((cast<uint32_t>(func) >> 2) & 0x03FFFFFF);
-		std::vector<ptr> res;
-
-		void *imageBase = libres::getLoadAddress();
-		const std::vector<libres::section_addr_space_t> &executable_sections = libres::getExecutableSections();
-
-		for (size_t i = 0; i < executable_sections.size(); i++)
-		{
-			uint8_t *addrStart = (uint8_t *)imageBase + executable_sections[i].addr;
-			uint32_t secSize = executable_sections[i].size;
-			uint8_t *addrMax = addrStart + secSize - 4;
-			for (uint8_t *addr = addrStart; addr < addrMax; addr += 4)
-				if (*cast<uint32_t *>(addr) == code)
-					res.push_back(addr);
-		}
-
-		return res;
-	}
-
-	std::vector<ptr> find_mips_func_calls_in_func(ptr func, ptr func_in)
-	{
-		uint32_t code = 0x0C000000 | ((cast<uint32_t>(func) >> 2) & 0x03FFFFFF);
-		std::vector<ptr> res;
-
-		// let's assume first jr $ra is func end
-		for (uint8_t *addr = func_in; *cast<uint32_t *>(addr) != 0x03E00008; addr += 4)
-			if (*cast<uint32_t *>(addr) == code)
-				res.push_back(addr);
-
-		return res;
-	}
-
-#endif
 }

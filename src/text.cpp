@@ -3,10 +3,6 @@
 #include "utils.h"
 #include "strutils.h"
 
-#ifndef ANDROID
-#include "psplang.h"
-#endif
-
 using namespace strutils;
 
 namespace text
@@ -23,14 +19,10 @@ namespace text
 		// startup string replacement shown in GTA3 and GTAVC
 		add_gxt_entry("SPLASH", VERSION_STR);
 		// script menu
-		//add_gxt_entry("CLDSC", VERSION_STR "~n~" COPYRIGHT "~n~" WEBPAGE); // SA, LCS, VCS PSP
-#ifdef ANDROID
+		add_gxt_entry("CLDSC", VERSION_STR "~n~" COPYRIGHT "~n~" WEBPAGE); // SA, LCS, VCS PSP
 		add_gxt_entry("CLDSCL", core::GetGame() == core::GTA3
 			? CLEO_ANDROID "               " VERSION_DATE "                   " COPYRIGHT "          " WWW_WEBPAGE	// III
-			: CLEO_ANDROID "~n~" VERSION_DATE "~n~" COPYRIGHT "~n~" WWW_WEBPAGE);	// VC		 
-#else
-		//add_gxt_entry("CLDSCL", VERSION_STR "     " COPYRIGHT "  " WWW_WEBPAGE); // LCS PSP
-#endif
+			: CLEO_ANDROID "~n~" VERSION_DATE "~n~" COPYRIGHT "~n~" WWW_WEBPAGE);	// VC
 		add_gxt_entry("CLMNU", "cleo menu");
 		add_gxt_entry("CLMNUD", "Touch screen up or down to select a script, center to start it");
 		add_gxt_entry("CLMNUN", "You have no scripts for menu, are you sure the game has STORAGE access permission?");
@@ -52,11 +44,8 @@ namespace text
 
 	void add_gxt_entry(std::string name, std::string str)
 	{
-#ifndef ANDROID
-		str = psplang::localize(str);
-#endif
-		uint16_t *w = new uint16_t[str.length() + 1];
-		uint32_t hash = str_hash(name);
+	    uint16_t *w = new uint16_t[str.length() + 1];
+	    uint32_t hash = str_hash(name);
 		wstr_from_ansi(w, str.c_str());
 		gxt_entries[hash] = w;
 	}
@@ -79,9 +68,6 @@ namespace text
 				str = str_replace(str, "csi", "");
 				str = str_replace(str, ".", "");
 				str = str_replace(str, "_", " ");
-#ifndef ANDROID
-				str = psplang::localize(str);
-#endif
 				uint16_t *w = new uint16_t[str.length() + 1];
 				wstr_from_ansi(w, str.c_str());
 				delete[] gxt_entries[hash];

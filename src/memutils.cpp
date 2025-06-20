@@ -4,7 +4,6 @@ namespace memutils
 {
 	void mem_write_arr(uint8_t *addr, uint8_t *arr, uint32_t size, bool protect)
 	{
-#ifdef ANDROID
 		if (protect)
 		{
 			uint32_t a = ( cast<uint32_t>(addr) ) & ( ~(PAGE_SIZE - 1) );
@@ -14,16 +13,9 @@ namespace memutils
 					pageCount++;
 			mprotect(cast<void *>(a), PAGE_SIZE * pageCount, PROT_READ | PROT_WRITE | PROT_EXEC);
 		}
-#endif
 		for (int i = 0; i < size; i++)
 			addr[i] = arr[i];
-#ifndef ANDROID
-		sceKernelDcacheWritebackInvalidateAll();
-		sceKernelIcacheClearAll();
-#endif
 	}
-
-#ifdef ANDROID
 
 	// regNum - R0..R7
 	void mem_write_thumb_jmp(uint8_t *addrFrom, uint8_t *addrTo, uint8_t regNum)
@@ -100,26 +92,4 @@ namespace memutils
 		*cast<uint8_t **>(&code[4]) = addrTo;
 		mem_write_arr(addrFrom, code, sizeof(code));
 	}
-
-#else
-
-	ptr mem_read_mips_jmp(uint8_t *addr)
-	{
-		return cast<ptr>((*cast<uint32_t *>(addr) & 0x03FFFFFF) << 2);
-	}
-
-	void mem_write_mips_jmp(uint8_t *addrFrom, uint8_t *addrTo, bool withNop)
-	{
-		uint64_t code = 0x08000000 | ((cast<uint32_t>(addrTo) >> 2) & 0x03FFFFFF);
-		mem_write_arr(addrFrom, cast<uint8_t *>(&code), withNop ? 8 : 4);
-	}
-
-	void mem_write_mips_call(uint8_t *addrFrom, uint8_t *addrTo, bool withNop)
-	{
-		uint64_t code = 0x0C000000 | ((cast<uint32_t>(addrTo) >> 2) & 0x03FFFFFF);
-		mem_write_arr(addrFrom, cast<uint8_t *>(&code), withNop ? 8 : 4);
-	}
-
-#endif
-
 }

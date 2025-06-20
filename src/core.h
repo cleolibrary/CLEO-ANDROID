@@ -5,9 +5,9 @@
 #define WEBPAGE				"http://dev-c.com"
 #define WWW_WEBPAGE			"www.dev-c.com"
 #define VERSION_STR 		CLEO_ANDROID " (" VERSION_DATE ")"
-#define VERSION_DATE	 	"01 Oct 2024"
-#define VERSION_CODE 		202
-#define VERSION_CODE_STR 	"2.0.2"
+#define VERSION_DATE	 	"04 Apr 2021"
+#define VERSION_CODE 		201
+#define VERSION_CODE_STR 	"2.0.1"
 
 #include "common.h"
 

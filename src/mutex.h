@@ -23,4 +23,3 @@ namespace mutex
 		cs_t() { mutex::enter(m); } \
 		~cs_t() { mutex::leave(m); } \
 	} __cs;
-

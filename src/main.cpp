@@ -1,8 +1,6 @@
 #include "core.h"
 #include "utils.h"
 
-#ifdef ANDROID
-
 #define EXPORT __attribute__ ((visibility ("default")))
 
 extern "C" {
@@ -191,24 +189,3 @@ extern "C" {
 		return JNI_VERSION_1_4;
 	}
 }
-
-#else
-	
-#ifndef __INTELLISENSE__
-PSP_MODULE_INFO(CLEO, 0x1000, 1, 1);
-PSP_HEAP_SIZE_KB(256);
-#endif
-
-#define STR(x) STR2(x)
-#define STR2(x) #x
-
-extern "C" const char VERSION[] = "[|VERSION]" VERSION_DATE ";" STR(VERSION_CODE) ";" VERSION_CODE_STR "[/VERSION|]";
-
-int main(int argc, char **argv)
-{
-	core::initialize();
-	sceKernelSleepThread();
-	return 0;
-}
-
-#endif

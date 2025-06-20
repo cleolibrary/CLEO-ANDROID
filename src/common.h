@@ -1,29 +1,15 @@
 #pragma once
-
-#ifdef ANDROID
 #include <jni.h>
 #include <dlfcn.h>
 #include <pthread.h>
 #include <sys/mman.h>
 #include <android/log.h>
-#include <stl/_vector.h> // if ide can't resolve standard vector include
+#include <vector>
 //#include <list>
 //#include <iterator>
 //#include <limits.h>
 #include <ctype.h>
 //#include <sys/time.h>
-#else
-#ifdef __INTELLISENSE__
-#define __STDC__
-#endif
-#include <pspsdk.h>
-#include <pspstdio.h>
-#include <pspkernel.h>
-#include <pspctrl.h>
-#include <pspdebug.h>
-#include <pspdisplay.h>
-#endif
-
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -54,15 +40,7 @@ typedef std::basic_string<uint16_t, std::char_traits<uint16_t>, std::allocator<u
 #pragma GCC diagnostic ignored "-Wunused-function"
 #pragma GCC diagnostic ignored "-Wreturn-type"
 
-#ifdef ANDROID
-
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 
 #pragma GCC diagnostic ignored "-Wpragmas"
 #pragma GCC diagnostic ignored "-Wunused-local-typedefs"
-
-#else
-
-#pragma GCC diagnostic ignored "-Wuninitialized"
-
-#endif
