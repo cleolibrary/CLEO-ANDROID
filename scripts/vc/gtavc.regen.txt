@@ -1,0 +1,27 @@
+{$CLEO .csa}
+
+/*
+    Regenerates player's health in GTA VC
+*/
+
+03A4: name_thread 'REGEN' 
+wait 1000  
+
+:REGEN_10
+0001: wait 100 ms 
+if 
+    0256:   player $303 defined
+jf @REGEN_10
+0226: 0@ = actor $304 health 
+00D6: if and
+8038:   not  0@  == 200 // integer values 
+8038:   not  0@  == 0 // integer values 
+004D: jump_if_false @REGEN_10 
+gosub @add_health
+0002: jump @REGEN_10
+
+:add_health
+0226: 0@ = actor $304 health 
+0008: 0@ += 1 // integer values 
+0223: set_actor $304 health_to 0@
+return 

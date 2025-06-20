@@ -1,0 +1,253 @@
+{$CLEO .csi}
+
+/*
+    Car spawner for GTA 3, invokes thru CLEO menu   
+    Controls (touch points are explained in CLEO Android readme):
+      prev vehicle - touch point 2
+      next vehicle - touch point 8
+      select - touch point 5
+      exit - any other touch point
+*/
+
+03A4: name_thread 'CARSPWN'
+if or
+    00E0: player $PLAYER_CHAR driving
+    8256: not player $PLAYER_CHAR defined 
+then
+    end_thread
+end     
+
+if
+    5@ == 0
+then     
+    5@ = 90
+end 
+
+0DD0: 0@ = get_label_addr @efloat_bigmsg_alpha
+0DD1: 15@ = get_func_addr_by_cstr_name 0@
+
+02A3: toggle_widescreen 1 
+0DDC: set_mutex_var 0 to 1
+
+:CARSPWN_69
+wait 0
+03E5: text_box 'CSPWN_1'
+01B4: set_player $PLAYER_CHAR frozen_state 0
+wait 100 
+jump @CARSPWN_95
+
+:CARSPWN_83
+wait 0 
+5@ = 90 // integer values 
+
+:CARSPWN_95       
+01E5: text_1number_highpriority 'NUMBER' 5@ flag 2000 time 1 
+0247: request_model 5@
+038B: load_requested_models 
+
+:CARSPWN_120
+wait 0 
+if 
+    0248: model 5@ available
+else_jump @CARSPWN_120 
+
+0054: store_player $PLAYER_CHAR position_to 0@ 1@ 2@
+0054: store_player $PLAYER_CHAR position_to 11@ 12@ 13@
+13@ += 1.0
+    
+0170: 3@ = player $PLAYER_CHAR z_angle   
+var
+  0@ : float  
+  1@ : float
+  2@ : float  
+  3@ : float  
+  4@ : float
+  10@ : float
+end  
+  
+4@ = 3@
+if 4@ < 270.0 
+then
+   4@ += 90.0
+else
+   4@ -= 270.0
+end
+
+02F7: 10@ = sin 4@
+10@ *= 7.0
+0@ += 10@
+
+02F6: 10@ = cos 4@
+10@ *= 7.0
+1@ += 10@
+
+if 
+  3@ > 180.0 // floating-point values 
+else_jump @CARSPWN_215 
+3@ -= 180.0 // floating-point values 
+jump @CARSPWN_225 
+
+:CARSPWN_215
+3@ += 180.0 // floating-point values 
+
+:CARSPWN_225
+015F: set_camera_position 11@ 12@ 13@ 0.0 0.0 0.0 
+0160: point_camera 0@ 1@ 2@ 2 
+
+00A5: 4@ = create_car 5@ at 0@ 1@ 2@
+3@ -= 90.0
+0175: set_car 4@ z_angle_to 3@
+020A: set_car 4@ door_status_to 2 
+0249: release_model 5@
+wait 100
+
+:CARSPWN_262
+wait 0
+0DD9: write_mem_addr 15@ value 255.0 size 4 add_ib 0 protect 0 
+00BA: text_styled 'CSPWN_4' 1000 ms 1
+if 
+    0442:   player $PLAYER_CHAR in_car 4@
+then
+    jump @END_TRUE
+end     
+
+0DE0: 0@ = get_touch_point_state 5 mintime 0
+0DE0: 1@ = get_touch_point_state 4 mintime 0
+0DE0: 2@ = get_touch_point_state 6 mintime 0
+if and
+    0@ == 1
+    1@ == 0
+    2@ == 0        
+jf @CARSPWN_315
+
+:END_TRUE 
+020A: set_car 4@ door_status_to 0
+01C3: remove_references_to_car 4@ 
+03D5: remove_text 'NUMBER' 
+03E5: text_box 'CSPWN_2'
+01B4: set_player $PLAYER_CHAR frozen_state 1
+jump @end_thread 
+
+:CARSPWN_315
+wait 0
+if or
+    0117: player $PLAYER_CHAR wasted
+    0130: player $PLAYER_CHAR busted 
+then
+    jump @END_FALSE
+end
+
+0DE0: 0@ = get_touch_point_state 1 mintime 500
+0DE0: 1@ = get_touch_point_state 4 mintime 500
+0DE0: 2@ = get_touch_point_state 7 mintime 500
+if or
+    0@ == 1 // touch point 1 is pressed
+    1@ == 1 // touch point 4 is pressed
+    2@ == 1 // touch point 7 is pressed
+then
+    jump @END_FALSE
+end 
+0DE0: 0@ = get_touch_point_state 3 mintime 500
+0DE0: 1@ = get_touch_point_state 6 mintime 500
+0DE0: 2@ = get_touch_point_state 9 mintime 500
+if or
+    0@ == 1 // touch point 3 is pressed
+    1@ == 1 // touch point 6 is pressed
+    2@ == 1 // touch point 9 is pressed
+then
+    jump @END_FALSE
+end  
+jump @CARSPWN_364
+
+:END_FALSE
+00A6: destroy_car 4@ 
+03D5: remove_text 'NUMBER' 
+01B4: set_player $PLAYER_CHAR frozen_state 1
+03E5: text_box 'CSPWN_3'
+wait 1000
+jump @end_thread 
+
+:CARSPWN_364
+wait 0
+0DE0: 0@ = get_touch_point_state 8 mintime 0
+if 
+    0@ == 1
+else_jump @CARSPWN_474 
+00A6: destroy_car 4@ 
+03D5: remove_text 'NUMBER' 
+if 
+   not 5@ == 150 // integer values 
+else_jump @CARSPWN_83 
+5@ += 1 // integer values 
+if and
+   not 5@ == 124 // integer values
+   not 5@ == 125 // integer values
+   not 5@ == 131 // integer values 
+   not 5@ == 140 // integer values 
+   not 5@ == 141 // integer values 
+   not 5@ == 147 // integer values 
+else_jump @CARSPWN_603 
+jump @CARSPWN_95 
+
+:CARSPWN_474
+wait 0 
+0DE0: 0@ = get_touch_point_state 2 mintime 0
+if 
+    0@ == 1 
+else_jump @CARSPWN_262
+00A6: destroy_car 4@ 
+03D5: remove_text 'NUMBER' 
+if 
+   not 5@ == 90 // integer values 
+else_jump @CARSPWN_584 
+5@ -= 1 // integer values 
+if and
+   not 5@ == 124 // integer values
+   not 5@ == 125 // integer values
+   not 5@ == 131 // integer values 
+   not 5@ == 140 // integer values 
+   not 5@ == 141 // integer values 
+   not 5@ == 147 // integer values   
+else_jump @CARSPWN_664 
+jump @CARSPWN_95 
+
+:CARSPWN_584
+5@ = 150 // integer values 
+jump @CARSPWN_95 
+
+:CARSPWN_603
+if or
+   5@ == 124 // integer values 
+   5@ == 125 // integer values
+   5@ == 131 // integer values 
+   5@ == 140 // integer values 
+   5@ == 141 // integer values 
+   5@ == 147 // integer values  
+else_jump @CARSPWN_95 
+5@ += 1 // integer values 
+jump @CARSPWN_603 
+
+:CARSPWN_664
+if or
+   5@ == 124 // integer values 
+   5@ == 125 // integer values
+   5@ == 131 // integer values 
+   5@ == 140 // integer values 
+   5@ == 141 // integer values 
+   5@ == 147 // integer values     
+else_jump @CARSPWN_95 
+5@ -= 1 // integer values 
+jump @CARSPWN_664
+
+:end_thread
+wait 0
+0373: set_camera_directly_behind_player 
+02EB: restore_camera_with_jumpcut 
+02A3: toggle_widescreen 0 
+0DDC: set_mutex_var 0 to 0
+end_thread
+
+:efloat_bigmsg_alpha
+hex
+    "BigMessageAlpha" 00
+end

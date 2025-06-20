@@ -1,0 +1,94 @@
+{$CLEO .csi}
+
+thread 'WEATHER'
+
+var 
+    0@ : Integer  // general purporse
+    10@ : Integer // selected item index
+    12@ : Integer // active item index    
+    20@ : Integer // player handle
+end
+
+0DD5: 0@ = get_platform
+if 
+    0@ == 1
+then
+    008B: 20@ = $537 // player handle on Android
+else
+    008B: 20@ = $536 // player handle on PSP
+end
+
+0DDD: 0@ = get_mutex_var 0
+if or
+    0@ == 1
+    825B: not player 20@ defined 
+then
+    end_thread
+end
+
+0DDC: set_mutex_var 0 to 1    
+    
+0DD0: 0@ = get_label_addr @menu_desc
+0DF2: create_menu 0@ items 9
+0DF5: set_menu_active_item_index 12@
+    
+01B9: set_player_control 20@ to 0
+    
+// touch handle loop
+while true
+    wait 0
+    // resets menu touch item index as well
+    0DF4: 10@ = get_menu_touched_item_index maxtime 100
+    // set weather
+    if and
+        10@ >= 0
+        10@ < 8 
+    then
+        01BB: force_weather_now 10@
+        break
+    end
+    // release weather
+    if
+        10@ == 8
+    then
+        01BC: release_weather
+        break
+    end
+    // close menu
+    if 
+        10@ == -2
+    then
+        break
+    end
+end
+
+0DF6: 12@ = get_menu_active_item_index
+
+// wait to show what was selected and not to trigger player controls with current touch
+wait 100     
+0DF3: delete_menu    
+01B9: set_player 20@ frozen_state 1
+0DDC: set_mutex_var 0 to 0
+
+end_thread     
+
+:menu_desc
+hex
+    // flags
+    00 00 00 00
+    // title
+    "WEATHER" 00
+    // close button
+    "CLOSE" 00
+    // items
+    "Sunny" 00 
+    "Cloudy" 00 
+    "Rainy" 00 
+    "Foggy" 00 
+    "Extra" 20 "sunny" 00 
+    "Hurricane" 00 
+    "Extra" 20 "colours" 00 
+    "Snow" 00
+    "Release" 20 "weather" 00 
+    00
+end

@@ -1,0 +1,136 @@
+{$CLEO .csa}
+
+/*
+    All weapon script for GTA VC   
+      activation - activates from invokable scripts thru mutex var 
+*/
+
+03A4: name_thread 'ALLWEAP' 
+wait 1000
+
+:ALLWEAP_12
+wait 0
+if
+    0256: player $303 defined
+jf @ALLWEAP_12
+if     
+    80E0: not player $303 driving
+jf @ALLWEAP_12
+0DDD: 0@ = get_mutex_var 123000
+if
+    0@ == 1
+jf @ALLWEAP_12
+03E5: text_box 'AWEAP_1'
+0DDC: set_mutex_var 123000 to 0
+
+:ALLWEAP_79
+wait 0 
+0@ = 258 // integer values 
+
+:ALLWEAP_91
+0@ += 1 // integer values 
+if 
+   not 0@ == 295 // integer values 
+else_jump @ALLWEAP_129 
+Model.Load(0@)
+jump @ALLWEAP_91 
+
+:ALLWEAP_129
+04B8: get_weapon_data_from_player $304 slot 2 weapon 1@ ammo 0@ model 0@ 
+04B8: get_weapon_data_from_player $304 slot 3 weapon 2@ ammo 9@ model 0@ 
+04B8: get_weapon_data_from_player $304 slot 4 weapon 3@ ammo 10@ model 0@ 
+04B8: get_weapon_data_from_player $304 slot 5 weapon 4@ ammo 11@ model 0@ 
+04B8: get_weapon_data_from_player $304 slot 6 weapon 5@ ammo 12@ model 0@ 
+04B8: get_weapon_data_from_player $304 slot 7 weapon 6@ ammo 13@ model 0@ 
+04B8: get_weapon_data_from_player $304 slot 8 weapon 7@ ammo 14@ model 0@ 
+04B8: get_weapon_data_from_player $304 slot 9 weapon 8@ ammo 15@ model 0@ 
+048F: actor $304 remove_weapons 
+0@ = 0 // integer values 
+
+:ALLWEAP_279
+wait 0 
+if and
+00E1:   player 0 pressed_button 7 
+80E1:   not player 0 pressed_button 6 
+80E0:   not player $303 driving 
+else_jump @ALLWEAP_438 
+
+:ALLWEAP_330
+0@ += 1 // integer values 
+if and
+   not 0@ == 16 // integer values 
+   not 0@ == 34 // integer values 
+   not 0@ == 35 // integer values 
+else_jump @ALLWEAP_330 
+if 
+   not 0@ == 37 // integer values 
+else_jump @ALLWEAP_412 
+048F: actor $304 remove_weapons 
+01B1: give_player $303 weapon 0@ ammo 99999 // Load the weapon model before using this 
+jump @ALLWEAP_279 
+
+:ALLWEAP_412
+0@ = 0 // integer values 
+048F: actor $304 remove_weapons 
+01B9: set_actor $304 armed_weapon_to 0 
+jump @ALLWEAP_279 
+
+:ALLWEAP_438
+if and
+00E1:   player 0 pressed_button 5 
+80E1:   not player 0 pressed_button 6 
+80E0:   not player $303 driving 
+else_jump @ALLWEAP_580 
+
+:ALLWEAP_466
+0@ -= 1 // integer values 
+if and
+   not 0@ == 16 // integer values 
+   not 0@ == 34 // integer values 
+   not 0@ == 35 // integer values 
+else_jump @ALLWEAP_466 
+if 
+   not 0@ == -1 // integer values 
+else_jump @ALLWEAP_548 
+048F: actor $304 remove_weapons 
+01B1: give_player $303 weapon 0@ ammo 99999 // Load the weapon model before using this 
+jump @ALLWEAP_279 
+
+:ALLWEAP_548
+0@ = 36 // integer values 
+048F: actor $304 remove_weapons 
+01B1: give_player $303 weapon 0@ ammo 99999 // Load the weapon model before using this 
+jump @ALLWEAP_279 
+
+:ALLWEAP_580
+0DDD: 16@ = get_mutex_var 123000 // using timer because there are no other variables
+if
+    16@ <> 2
+then
+  jump @ALLWEAP_279
+end
+
+048F: actor $304 remove_weapons 
+01B1: give_player $303 weapon 1@ ammo 1 // Load the weapon model before using this 
+01B1: give_player $303 weapon 2@ ammo 9@ // Load the weapon model before using this 
+01B1: give_player $303 weapon 3@ ammo 10@ // Load the weapon model before using this 
+01B1: give_player $303 weapon 4@ ammo 11@ // Load the weapon model before using this 
+01B1: give_player $303 weapon 5@ ammo 12@ // Load the weapon model before using this 
+01B1: give_player $303 weapon 6@ ammo 13@ // Load the weapon model before using this 
+01B1: give_player $303 weapon 7@ ammo 14@ // Load the weapon model before using this 
+01B1: give_player $303 weapon 8@ ammo 15@ // Load the weapon model before using this 
+0@ = 258 // integer values 
+
+:ALLWEAP_703
+0@ += 1 // integer values 
+if 
+   not 0@ == 295 // integer values 
+else_jump @ALLWEAP_741 
+Model.Destroy(0@)
+jump @ALLWEAP_703 
+
+:ALLWEAP_741
+01B8: set_player $303 armed_weapon_to 0 
+03E5: text_box 'AWEAP_2'
+0DDC: set_mutex_var 123000 to 0
+jump @ALLWEAP_12 

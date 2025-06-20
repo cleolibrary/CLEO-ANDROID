@@ -1,0 +1,170 @@
+{$CLEO .csi}
+
+thread 'SLMSN'
+
+var 
+    0@ : Integer  // general purporse
+    1@ : Integer  // general purporse
+    2@ : Integer  // player handle
+    3@ : Integer  // onmission handle
+    10@ : Integer // selected item index
+    11@ : Integer // active item index
+end  
+
+0DD5: 0@ = get_platform
+if 
+    0@ == 1
+then
+    008B: 2@ = $537 // player handle on Android
+    008B: 3@ = $561 // onmission on Android
+else
+    008B: 2@ = $536 // player handle on PSP
+    008B: 3@ = $560 // onmission on PSP
+end
+
+0DDD: 0@ = get_mutex_var 0
+if or
+    0@ == 1
+    3@ == 1 // on mission
+    825B: not player 2@ defined 
+then
+    end_thread
+end       
+
+0DDC: set_mutex_var 0 to 1    
+    
+0DD0: 0@ = get_label_addr @menu_desc
+0DF2: create_menu 0@ items 70
+0DF5: set_menu_active_item_index 11@
+    
+01B9: set_player_control 2@ to 0
+
+1@ = 0
+    
+// touch handle loop
+while true
+    wait 0
+    // resets menu touch item index as well
+    0DF4: 10@ = get_menu_touched_item_index maxtime 100
+    // teleport to coords
+    if and
+        10@ >= 0
+        10@ < 70
+    then
+        1@ = 10@
+        1@ += 48
+        if
+            1@ >= 62
+        then
+            1@ += 1
+        end 
+        break        
+    end
+    // close menu
+    if 
+        10@ == -2
+    then
+        break
+    end
+end
+
+0DF6: 11@ = get_menu_active_item_index
+
+// wait to show what was selected and not to trigger player controls with current touch
+wait 100     
+0DF3: delete_menu    
+01B9: set_player_control 2@ to 1
+0DDC: set_mutex_var 0 to 0
+
+// start mission
+if 
+    1@ > 0
+then
+    wait 100
+    041C: start_mission 1@
+end    
+
+end_thread
+
+:menu_desc
+hex
+    // flags
+    03 00 00 00
+    // title
+    "SELECT" 20 "MISSION" 00
+    // close button
+    "CLOSE" 00
+    // items
+    "VIC2" 00 // Slacker (Vincenzo)
+    "VIC3" 00 // Dealing Revenge (Vincenzo)
+    "VIC4" 00 // Snuff (Vincenzo)
+    "VIC5" 00 // Smash and Grab (Vincenzo)
+    "VIC6" 00 // Hot Wheels (Vincenzo)
+    "VIC7" 00 // The Portland Chainsaw Masquerade (Vincenzo)
+    "SAL1" 00 // The Offer (Salvatore)
+    "SAL2" 00 // Ho Selecta! (Salvatore)
+    "SAL3" 00 // Frighteners (Salvatore)
+    "SAL4" 00 // Rollercoaster Ride (Salvatore)
+    "SAL5" 00 // Contra-Banned (Salvatore)
+    "SAL6" 00 // Sindacco Sabotage (Salvatore)
+    "SAL7" 00 // The Trouble with Triads (Salvatore)
+    "SAL8" 00 // Driving Mr Leone (Salvatore)
+    "JDT1" 00 // Bone Voyeur! (JD)
+    "JDT2" 00 // Don in 60 Seconds (JD)
+    "JDT3" 00 // A Volatile Situation (JD)
+    "JDT4" 00 // Blow up 'Dolls' (JD)
+    "JDT5" 00 // Salvatore's Salvation (JD)
+    "JDT6" 00 // The Guns of Leone (JD)
+    "JDT7" 00 // Calm before the Storm (JD)
+    "JDT8" 00 // The Made Man (JD)
+    "MAC1" 00 // Snappy Dresser (Ma Cipriani)
+    "MAC2" 00 // Big Rumble in Little China (Ma Cipriani)
+    "MAC3" 00 // Grease Sucho (Ma Cipriani)
+    "MAC4" 00 // Dead Meat (Ma Cipriani)
+    "MAC5" 00 // No Son of Mine (Ma Cipriani)
+    "MAR1" 00 // Shop 'til you Strop (Maria)
+    "MAR2" 00 // Taken for a Ride (Maria)
+    "MAR3" 00 // Booby Prize (Maria)
+    "MAR4" 00 // Biker Heat (Maria)
+    "MAR5" 00 // Overdose of Trouble (Maria)
+    "SALS2" 00 // Making Toni (Salvatore)
+    "SALS1" 00 // A Walk In The Park (Salvatore)
+    "SALS3" 00 // Caught In The Act (Salvatore)
+    "SALS4" 00 // Search And Rescue (Salvatore)
+    "SALS5" 00 // Taking The Peace (Salvatore)
+    "SALS6" 00 // Shoot The Messenger (Salvatore)
+    "RAYS1" 00 // Sayonara Sindaccos (Leon McAffrey)
+    "RAYS2" 00 // The Whole 9 Yardies (Leon McAffrey)
+    "RAYS3" 00 // Crazy '69' (Leon McAffrey)
+    "RAYS4" 00 // Night Of The Livid Dreads (Leon McAffrey)
+    "RAYS5" 00 // Munitions Dump (Leon McAffrey)
+    "DONS1" 00 // The Morgue Party Candidate (Donald Love)
+    "DONS2" 00 // Steering The Vote (Donald Love)
+    "DONS3" 00 // Cam-Pain (Donald Love)
+    "DONS4" 00 // Friggin' The Riggin' (Donald Love)
+    "DONS5" 00 // Love & Bullets (Donald Love)
+    "DONS6" 00 // Counterfeit Count (Donald Love)
+    "DONS7" 00 // Love On The Rocks (Donald Love)
+    "NEDS1" 00 // L.C. Confidential (Church Confessional)
+    "NEDS2" 00 // The Passion Of The Heist (Church Confessional)
+    "NEDS3" 00 // Karmageddon (Church Confessional)
+    "NEDS4" 00 // False Idols (Church Confessional)
+    "SALH1" 00 // Rough Justice (Salvatore)
+    "SALH2" 00 // Dead Reckoning (Salvatore)
+    "SALH3" 00 // Shogun Showdown (Salvatore)
+    "SALH4" 00 // The Shoreside Redemption (Salvatore)
+    "SALH5" 00 // The Sicilian Gambit (Salvatore)
+    "DONH1" 00 // Panlantic Land Grab (Donald Love)
+    "DONH2" 00 // Stop the Press (Donald Love)
+    "DONH3" 00 // Morgue Party Resurrection (Donald Love)
+    "DONH4" 00 // No Money, Mo' Problems (Donald Love)
+    "DONH5" 00 // Bringing the House Down (Donald Love)
+    "DONH6" 00 // Love on the Run (Donald Love)
+    "TOSH1" 00 // More Deadly than the Male (Toshiko Kasen)
+    "TOSH2" 00 // Cash Clash (Toshiko Kasen)
+    "TOSH3" 00 // A Date with Death (Toshiko Kasen)
+    "TOSH4" 00 // Cash in Kazuki's Chips (Toshiko Kasen)    
+    00
+end  
+
+       

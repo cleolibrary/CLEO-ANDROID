@@ -1,0 +1,207 @@
+{$CLEO .csi}
+
+thread 'CHEATS'
+
+var 
+    0@ : Integer  // general purporse
+    1@ : Integer  // general purporse
+    2@ : Integer  // general purporse
+    7@ : Integer  // cheat input ptr
+    8@ : Integer  // iterator
+    10@ : Integer // selected item index
+    12@ : Integer // active item index    
+    20@ : Integer // player handle
+end
+
+0DD5: 0@ = get_platform
+if 
+    0@ == 1
+then
+    008B: 20@ = $537 // player handle on Android
+else
+    008B: 20@ = $536 // player handle on PSP
+end
+
+0DDD: 0@ = get_mutex_var 0
+if or
+    0@ == 1
+    825B: not player 20@ defined 
+then
+    end_thread
+end
+
+0DDC: set_mutex_var 0 to 1    
+    
+0DD0: 0@ = get_label_addr @menu_desc
+0DF2: create_menu 0@ items 37
+0DF5: set_menu_active_item_index 12@
+    
+01B9: set_player_control 20@ to 0
+    
+// touch handle loop
+while true
+    wait 0
+    // resets menu touch item index as well
+    0DF4: 10@ = get_menu_touched_item_index maxtime 100
+    // activate cheat
+    if
+        10@ >= 0
+    then
+        0DD5: 0@ = get_platform
+        if 
+            0@ == 1
+        then
+            0DD0: 2@ = get_label_addr @efunc_CPad_AddToCheatString
+            0DD1: 2@ = get_func_addr_by_cstr_name 2@
+        else
+            0DD0: 2@ = get_label_addr @eptn_CPad_AddToCheatString
+            0DDA: 2@ = get_pattern_addr_cstr 2@ index 0
+        end
+        0DD0: 0@ = get_label_addr @inst_CPad
+        0DD0: 7@ = get_label_addr @cheat_inputs
+        10@ *= 8
+        7@ += 10@    
+        for 8@ = 0 to 7            
+            0DD8: 1@ = read_mem_addr 7@ size 1 add_ib 0
+            7@ += 1
+            0DDE: call_func 2@ add_ib 0 __pad_inst 'i' 0@ __char 'i' 1@
+        end
+        break
+    end
+    // close menu
+    if 
+        10@ == -2
+    then
+        break
+    end
+end
+
+0DF6: 12@ = get_menu_active_item_index
+
+// wait to show what was selected and not to trigger player controls with current touch
+wait 100     
+0DF3: delete_menu    
+01B9: set_player 20@ frozen_state 1
+0DDC: set_mutex_var 0 to 0
+
+end_thread     
+
+:menu_desc
+hex
+    // flags
+    00 00 00 00
+    // title
+    "CHEATS" 00
+    // close button
+    "CLOSE" 00
+    // items
+    "Weapon" 20 "1" 00
+    "Weapon" 20 "2" 00
+    "Weapon" 20 "3" 00
+    "Armour" 00
+    "Money" 00
+    "Health" 00
+    "Wanted" 20 "Up" 00
+    "Wanted" 20 "Down" 00
+    "Sunny" 20 "Weather" 00
+    "Rainy" 20 "Weather" 00
+    "Cloudy" 20 "Weather" 00
+    "Extra" 20 "Sunny" 00
+    "Foggy" 20 "Weather" 00
+    "Slow" 20 "Time" 00
+    "Fast" 20 "Time" 00
+    "Glass" 20 "Cars" 00
+    "Bike" 20 "Wheels" 00
+    "Big" 20 "Heads" 00
+    "Fanny" 20 "Magnet" 00
+    "PickUp" 20 "Chicks" 00
+    "Seaways" 00
+    "Trashmaster" 00
+    "Black" 20 "Cars" 00
+    "Pink" 20 "Cars" 00
+    "Mad" 20 "Cars" 00
+    "Traffic" 20 "Lights" 00
+    "Suicide" 00
+    "Chase" 20 "Stat" 00
+    "Strong" 20 "Grip" 00
+    "Weapon" 20 "For" 20 "All" 00
+    "Peds" 20 "Attack" 20 "You" 00
+    "Mayhem" 00
+    "Change" 20 "Player" 00
+    "BlowUp" 20 "Cars" 00
+    "Fast" 20 "Weather" 00
+    "Random" 20 "Vehicle" 00
+    "Topsy" 20 "Turvy" 00
+    00
+end
+
+:cheat_inputs
+hex
+    "USSDLSSR"
+    "UCCDLCCR"
+    "UXXDLXXR"
+    "12C12X12"
+    "12T12C12"
+    "12X12S12"
+    "12S12T12"
+    "11T22XSC"
+    "11C22STX"
+    "UDSUDC12"
+    "UDXUDT12"
+    "UDCUDS12"
+    "UDTUDX12"
+    "2TX2SCLR"
+    "221221DX"
+    "T21DD22T"
+    "CRXURX1S"
+    "DDDCCX12"
+    "DDDTTC12"
+    "XSDXSU22"
+    "CXDCXU11"
+    "TCDTCU11"
+    "CC2TT1SS"
+    "XX2CC1TT"
+    "SS2XX1CC"
+    "TT2SS1XX"
+    "1DL2XCUT"
+    "1UR2TSDX"
+    "1UL2TCDX"
+    "221221RC"
+    "112112UT"
+    "112112LS"
+    "11L11RST"
+    "11L11RXS"
+    "11L11RCX"
+    "11L11RTC"
+    "DDDXXS21"
+end
+
+:efunc_CPad_AddToCheatString
+hex
+    "_ZN4CPad16AddToCheatStringEc" 00 
+end
+
+:eptn_CPad_AddToCheatString
+hex  
+    "?? ?? ?? ?? 14 00 B1 AF 00 2E 05 00 25 88 80 00" 00 
+end
+
+:inst_CPad
+hex
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+end

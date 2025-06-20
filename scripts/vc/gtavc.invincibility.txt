@@ -1,0 +1,51 @@
+{$CLEO .csa}
+
+thread 'INVINC' 
+wait 1000
+
+0DD0: 0@ = get_label_addr @ebool_seaways
+0DD1: 14@ = get_func_addr_by_cstr_name 0@
+
+while true
+    wait 100 
+    if 
+        8256: not player $303 defined
+    then
+        continue
+    end
+    0223: set_actor $304 health_to 250
+    02AB: set_actor $304 immunities 1 1 1 1 1
+    if
+        00DF: actor $304 driving
+    then 
+        03C0: 2@ = actor $304 car
+        0224: set_car 2@ health_to 2000 
+        02AC: set_car 2@ immunities 1 1 1 1 1
+        0DD8: 0@ = read_mem_addr 14@ size 1 fix_ib 0
+        if and            
+            02BF: car 2@ sunk
+            84A8: not player_driving_boat $303
+            0@ == 0
+        then
+            0054: store_player $303 position_to 3@ 4@ 5@ 
+            02C1: set 3@ 4@ 5@ to_car_path_coords_closest_to 3@ 4@ 5@ 
+            5@ += 0.5
+            0055: put_player $303 at 3@ 4@ 5@
+            continue
+        end             
+    end
+    if
+        04AD: actor $304 sunk
+    then
+        0054: store_player $303 position_to 3@ 4@ 5@ 
+        02C0: set 3@ 4@ 5@ to_ped_path_coords_closest_to 3@ 4@ 5@
+        5@ += 0.5
+        0055: put_player $303 at 3@ 4@ 5@
+    end                                  
+end
+
+:ebool_seaways
+hex 
+    "_ZN8CVehicle11bHoverCheatE" 00
+end
+

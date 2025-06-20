@@ -1,0 +1,218 @@
+{$CLEO .csi}
+
+thread 'CHEATS'
+var 
+    0@ : Integer
+    1@ : Integer
+    2@ : Integer
+    3@ : Integer
+    10@ : Integer // selected item index
+    12@ : Integer // active item index
+end
+
+0DDD: 0@ = get_mutex_var 0
+if or
+    0@ == 1  
+    8256: not player $PLAYER_CHAR defined        
+then
+    end_thread
+end
+
+0DDC: set_mutex_var 0 to 1
+01B4: set_player $PLAYER_CHAR frozen_state 0
+
+0DD0: 0@ = get_label_addr @menu_desc
+0DF2: create_menu 0@ items 100
+0DF5: set_menu_active_item_index 12@
+
+// touch handle loop
+while true
+    wait 0
+    // resets menu touch item index as well
+    0DF4: 10@ = get_menu_touched_item_index maxtime 100
+    // activate cheat
+    if and
+        10@ >= 0
+        10@ < 100
+    then
+        0DD0: 1@ = get_label_addr @earr_bool_cheats
+        0DD1: 1@ = get_func_addr_by_cstr_name 1@
+        1@ += 10@
+        0DD8: 2@ = read_mem_addr 1@ size 1 add_ib 0
+        if 
+            2@ == 0
+        then
+            2@ = 1
+        else
+            2@ = 0
+        end
+        // 1@ stores cheat bool state address
+        // 2@ stores state to set for bool cheat
+        0DD0: 3@ = get_label_addr @earr_cheat_funcs
+        0DD1: 3@ = get_func_addr_by_cstr_name 3@        
+        10@ *= 4
+        3@ += 10@
+        // 3@ stores cheat func ptr address        
+        0DD8: 3@ = read_mem_addr 3@ size 4 add_ib 0
+        // 3@ stores cheat func ptr            
+        if
+            3@ <> 0
+        then
+            // func cheat
+            0DDE: call_func 3@ add_ib 0
+        else
+            // bool cheat
+            0DD9: write_mem_addr 1@ value 2@ size 1 add_ib 0 protect 0
+        end
+        // show text box with cheat state
+        if 
+            2@ == 1
+        then
+            03E5: show_text_box 'CHTACT'
+        else
+            03E5: show_text_box 'CHTDEA'
+        end         
+        break
+    end
+    // close menu
+    if 
+        10@ == -2
+    then
+        break
+    end
+end
+
+0DF6: 12@ = get_menu_active_item_index
+
+// wait to show what was selected and not to trigger player controls with current touch
+wait 100           
+
+0DF3: delete_menu
+01B4: set_player $PLAYER_CHAR frozen_state 1
+0DDC: set_mutex_var 0 to 0      
+
+end_thread
+
+// mangled exported symbol names
+:earr_cheat_funcs
+hex
+    "_ZN6CCheat17m_aCheatFunctionsE" 00
+end     
+
+:earr_bool_cheats
+hex
+    "_ZN6CCheat15m_aCheatsActiveE" 00
+end
+
+:menu_desc
+hex
+    // flags
+    01 00 00 00
+    // title
+    "CHEATS" 00
+    // close button
+    "CLOSE" 00
+    // items
+    "CHT_0" 00
+	"CHT_1" 00
+	"CHT_2" 00
+	"CHT_3" 00
+	"CHT_4" 00
+	"CHT_5" 00
+	"CHT_6" 00
+	"CHT_7" 00
+	"CHT_8" 00
+	"CHT_9" 00
+    "CHT_10" 00
+	"CHT_11" 00
+	"CHT_12" 00
+	"CHT_13" 00
+	"CHT_14" 00
+	"CHT_15" 00
+	"CHT_16" 00
+	"CHT_17" 00
+	"CHT_18" 00
+	"CHT_19" 00
+    "CHT_20" 00
+	"CHT_21" 00
+	"CHT_22" 00
+	"CHT_23" 00
+	"CHT_24" 00
+	"CHT_25" 00
+	"CHT_26" 00
+	"CHT_27" 00
+	"CHT_28" 00
+	"CHT_29" 00
+    "CHT_30" 00
+	"CHT_31" 00
+	"CHT_32" 00
+	"CHT_33" 00
+	"CHT_34" 00
+	"CHT_35" 00
+	"CHT_36" 00
+	"CHT_37" 00
+	"CHT_38" 00
+	"CHT_39" 00
+    "CHT_40" 00
+	"CHT_41" 00
+	"CHT_42" 00
+	"CHT_43" 00
+	"CHT_44" 00
+	"CHT_45" 00
+	"CHT_46" 00
+	"CHT_47" 00
+	"CHT_48" 00
+	"CHT_49" 00
+    "CHT_50" 00
+	"CHT_51" 00
+	"CHT_52" 00
+	"CHT_53" 00
+	"CHT_54" 00
+	"CHT_55" 00
+	"CHT_56" 00
+	"CHT_57" 00
+	"CHT_58" 00
+	"CHT_59" 00
+    "CHT_60" 00
+	"CHT_61" 00
+	"CHT_62" 00
+	"CHT_63" 00
+	"CHT_64" 00
+	"CHT_65" 00
+	"CHT_66" 00
+	"CHT_67" 00
+	"CHT_68" 00
+	"CHT_69" 00
+    "CHT_70" 00
+	"CHT_71" 00
+	"CHT_72" 00
+	"CHT_73" 00
+	"CHT_74" 00
+	"CHT_75" 00
+	"CHT_76" 00
+	"CHT_77" 00
+	"CHT_78" 00
+	"CHT_79" 00
+    "CHT_80" 00
+	"CHT_81" 00
+	"CHT_82" 00
+	"CHT_83" 00
+	"CHT_84" 00
+	"CHT_85" 00
+	"CHT_86" 00
+	"CHT_87" 00
+	"CHT_88" 00
+	"CHT_89" 00
+    "CHT_90" 00
+	"CHT_91" 00
+	"CHT_92" 00
+	"CHT_93" 00
+	"CHT_94" 00
+	"CHT_95" 00
+	"CHT_96" 00
+	"CHT_97" 00
+	"CHT_98" 00
+	"CHT_99" 00
+    00
+end
+ 

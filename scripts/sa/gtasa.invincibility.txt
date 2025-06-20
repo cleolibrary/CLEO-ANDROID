@@ -1,0 +1,28 @@
+{$CLEO .csa}
+
+thread 'INVINC'
+
+var 
+    0@ : Integer  // general purporse
+end
+ 
+wait 1000
+
+while true
+    wait 100
+    if 
+        8256: not player $PLAYER_CHAR defined
+    then
+        continue
+    end
+    0223: set_actor $PLAYER_ACTOR health_to 1000
+    02AB: set_actor $PLAYER_ACTOR immunities BP 1 FP 1 EP 1 CP 1 MP 1
+    if
+        00DF: actor $PLAYER_ACTOR driving        
+    then
+        03C0: 0@ = actor $PLAYER_ACTOR car
+        0224: set_car 0@ health_to 2000
+        02AC: set_car 0@ immunities BP 1 FP 1 EP 1 CP 1 MP 1
+    end
+end
+

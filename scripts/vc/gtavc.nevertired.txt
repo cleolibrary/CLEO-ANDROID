@@ -1,0 +1,16 @@
+{$CLEO .csa}
+
+thread 'NOTIRE'
+
+wait 1000
+
+while true
+    wait 100
+    if 
+        8256: not player $303 defined
+    then
+        continue
+    end
+    0330: set_player $303 infinite_run_to 1
+end
+

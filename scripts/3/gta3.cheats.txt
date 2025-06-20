@@ -1,0 +1,251 @@
+{$CLEO .csi}
+
+thread 'CHEATS'
+var 
+    0@ : Integer
+    1@ : Integer
+    2@ : Integer
+    10@ : Integer // selected item index
+    12@ : Integer // active item index
+    14@ : Integer
+    15@ : Integer
+end
+
+0DDD: 0@ = get_mutex_var 0
+if or
+    0@ == 1  
+    8256: not player $PLAYER_CHAR defined        
+then
+    end_thread
+end
+
+0DDC: set_mutex_var 0 to 1
+01B4: set_player $PLAYER_CHAR frozen_state 0
+
+0DD0: 0@ = get_label_addr @menu_desc
+0DF2: create_menu 0@ items 22
+0DF5: set_menu_active_item_index 12@
+
+// disable hud
+0DD0: 0@ = get_label_addr @eint_hud_disabled
+0DD1: 14@ = get_func_addr_by_cstr_name 0@
+0DD8: 15@ = read_mem_addr 14@ size 4 fix_ib 0
+0DD9: write_mem_addr 14@ value 2 size 4 add_ib 0 protect 0
+
+// touch handle loop
+while true
+    wait 0
+    // resets menu touch item index as well
+    0DF4: 10@ = get_menu_touched_item_index maxtime 100
+    // activate cheat
+    if and
+        10@ >= 0
+        10@ < 22
+    then
+        03E6: remove_text_box
+        0DD0: 0@ = get_label_addr @func_name_ptrs
+        1@ = 10@
+        1@ *= 4
+        0@ += 1@
+        0DD8: 0@ = read_mem_addr 0@ size 4 fix_ib 0
+        0DD0: 0@ = get_label_addr 0@
+        0DD1: 0@ = get_func_addr_by_cstr_name 0@
+        0DDE: call_func 0@ add_ib 0
+        break
+    end
+    // close menu
+    if 
+        10@ == -2
+    then
+        break
+    end
+end
+
+0DF6: 12@ = get_menu_active_item_index
+
+// wait to show what was selected and not to trigger player controls with current touch
+wait 100           
+
+// enable hud
+0DD9: write_mem_addr 14@ value 15@ size 4 add_ib 0 protect 0
+         
+0DF3: delete_menu
+01B4: set_player $PLAYER_CHAR frozen_state 1
+0DDC: set_mutex_var 0 to 0      
+
+end_thread
+
+:func_name_ptrs
+hex
+    @efunc_WeaponCheat
+    @efunc_MoneyCheat
+    @efunc_HealthCheat 
+    @efunc_WantedLevelUpCheat 
+    @efunc_WantedLevelDownCheat 
+    @efunc_TankCheat
+    @efunc_ChangePlayerCheat 
+    @efunc_MayhemCheat 
+    @efunc_EverybodyAttacksPlayerCheat
+    @efunc_WeaponsForAllCheat 
+    @efunc_FastTimeCheat
+    @efunc_SlowTimeCheat 
+    @efunc_ArmourCheat
+    @efunc_SunnyWeatherCheat 
+    @efunc_CloudyWeatherCheat
+    @efunc_RainyWeatherCheat
+    @efunc_FoggyWeatherCheat 
+    @efunc_FastWeatherCheat 
+    @efunc_OnlyRenderWheelsCheat 
+    @efunc_ChittyChittyBangBangCheat 
+    @efunc_StrongGripCheat 
+    @efunc_NastyLimbsCheat   
+end
+
+:efunc_WeaponCheat
+hex
+    "_Z11WeaponCheatv" 00
+end
+
+:efunc_MoneyCheat
+hex
+    "_Z10MoneyCheatv" 00
+end
+
+:efunc_HealthCheat
+hex
+    "_Z11HealthCheatv" 00
+end
+
+:efunc_WantedLevelUpCheat
+hex
+    "_Z18WantedLevelUpCheatv" 00
+end
+
+:efunc_WantedLevelDownCheat
+hex
+    "_Z20WantedLevelDownCheatv" 00
+end
+
+:efunc_TankCheat
+hex
+    "_Z9TankCheatv" 00
+end
+
+:efunc_ChangePlayerCheat
+hex
+    "_Z17ChangePlayerCheatv" 00
+end
+
+:efunc_MayhemCheat
+hex
+    "_Z11MayhemCheatv" 00
+end
+
+:efunc_EverybodyAttacksPlayerCheat
+hex
+    "_Z27EverybodyAttacksPlayerCheatv" 00
+end
+
+:efunc_WeaponsForAllCheat
+hex
+    "_Z18WeaponsForAllCheatv" 00
+end
+
+:efunc_FastTimeCheat
+hex
+    "_Z13FastTimeCheatv" 00
+end
+
+:efunc_SlowTimeCheat
+hex
+    "_Z13SlowTimeCheatv" 00
+end
+
+:efunc_ArmourCheat
+hex
+    "_Z11ArmourCheatv" 00
+end
+
+:efunc_SunnyWeatherCheat
+hex
+    "_Z17SunnyWeatherCheatv" 00
+end
+
+:efunc_CloudyWeatherCheat
+hex
+    "_Z18CloudyWeatherCheatv" 00
+end
+
+:efunc_RainyWeatherCheat
+hex
+    "_Z17RainyWeatherCheatv" 00
+end
+
+:efunc_FoggyWeatherCheat
+hex
+    "_Z17FoggyWeatherCheatv" 00
+end
+
+:efunc_FastWeatherCheat
+hex
+    "_Z16FastWeatherCheatv" 00
+end
+
+:efunc_OnlyRenderWheelsCheat
+hex
+    "_Z21OnlyRenderWheelsCheatv" 00
+end
+
+:efunc_ChittyChittyBangBangCheat
+hex
+    "_Z25ChittyChittyBangBangCheatv" 00
+end
+
+:efunc_StrongGripCheat
+hex
+    "_Z15StrongGripCheatv" 00
+end
+
+:efunc_NastyLimbsCheat
+hex
+    "_Z15NastyLimbsCheatv" 00
+end
+
+:eint_hud_disabled
+hex
+    "Marketing_HudDisabled" 00
+end           
+
+:menu_desc
+hex
+    // flags
+    00 00 00 00
+    // title
+    "CHEATS" 00
+    // close button
+    "CLOSE" 00
+    // items
+    "Weapon" 00
+    "Money" 00
+    "Health" 00
+    "Wanted" 20 "up" 00
+    "Wanted" 20 "down" 00
+    "Spawn" 20 "random" 20 "car" 00
+    "Change" 20 "player" 00
+    "Mayhem" 00
+    "Peds" 20 "attack" 20 "player" 00
+    "Weapons" 20 "for" 20 "all" 00
+    "Fast" 20 "time" 00
+    "Slow" 20 "time" 00
+    "Armour" 00
+    "Sunny" 20 "weather" 00
+    "Cloudy" 20 "weather" 00
+    "Rainy" 20 "weather" 00
+    "Foggy" 20 "weather" 00
+    "Fast" 20 "weather" 00
+    "Only" 20 "wheels" 00
+    "Flying" 20 "cars" 00
+    "Jumping" 20 "cars" 00
+    "Nasty" 20 "limbs" 00
+    00
+end

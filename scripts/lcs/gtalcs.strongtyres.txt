@@ -1,0 +1,43 @@
+{$CLEO .csa}
+
+thread 'STRTYRE'
+
+var 
+    0@ : Integer  // general purporse
+    1@ : Integer  // player actor/char
+    2@ : Integer  // player's car
+    20@ : Integer // player handle
+end
+ 
+wait 1000
+
+while true
+    wait 100
+    0DD5: 0@ = get_platform
+    if 
+        0@ == 1
+    then
+        008B: 20@ = $537 // player handle on Android
+    else
+        008B: 20@ = $536 // player handle on PSP
+    end     
+    if 
+        825B: not player 20@ defined
+    then
+        continue
+    end
+    01FA: get_player_char 20@ store_to 1@
+    if
+        00E4: is_char_in_any_car 1@
+    then 
+        03C5: store_car_char_is_in_no_save 1@ store_to 2@
+        0471: get_driver_of_car 2@ store_to 0@
+        if
+            0@ <> 1@
+        then
+            continue
+        end
+        0544: set_can_burst_car_tyres 2@ to 0
+    end
+end
+

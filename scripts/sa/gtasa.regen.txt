@@ -1,0 +1,26 @@
+{$CLEO .csa}
+
+/*
+    Regenerates player's health
+*/
+
+thread 'REGEN'
+    
+while not player.Defined($PLAYER_CHAR)
+    wait 1000
+end
+
+while true
+    wait 0
+    0@ = Actor.Health($PLAYER_ACTOR)
+    if and
+        0@ > 0
+        0@ < 220        
+    then
+        0@ += 1
+        Actor.Health($PLAYER_ACTOR) = 0@
+        wait 200
+    else
+        wait 1000
+    end
+end

@@ -1,0 +1,203 @@
+{$CLEO .csi}
+
+thread 'CARSPWN'
+var 
+    0@ : Integer
+    1@ : Float
+    2@ : Float
+    3@ : Float
+    4@ : Float
+    5@ : Integer  // vehicle model id
+    6@ : Float
+    7@ : Float
+    10@ : Integer // selected item index
+    12@ : Integer // active item index
+    14@ : Integer
+    15@ : Integer
+end
+
+0DDD: 0@ = get_mutex_var 0
+if or
+    0@ == 1  
+    8256: not player $PLAYER_CHAR defined        
+then
+    end_thread
+end
+
+0DDC: set_mutex_var 0 to 1
+01B4: set_player $PLAYER_CHAR frozen_state 0
+
+0DD0: 0@ = get_label_addr @menu_desc
+0DF2: create_menu 0@ items 55
+0DF5: set_menu_active_item_index 12@
+
+// disable hud
+0DD0: 0@ = get_label_addr @eint_hud_disabled
+0DD1: 14@ = get_func_addr_by_cstr_name 0@
+0DD8: 15@ = read_mem_addr 14@ size 4 fix_ib 0
+0DD9: write_mem_addr 14@ value 2 size 4 add_ib 0 protect 0
+
+// touch handle loop
+while true
+    wait 0
+    // resets menu touch item index as well
+    0DF4: 10@ = get_menu_touched_item_index maxtime 100
+    // activate cheat
+    if and
+        10@ >= 0
+        10@ < 55
+    then
+        5@ = 90
+        while 10@ > 0
+            10@ -= 1
+            5@ += 1
+            while true
+                if or
+                   5@ == 124 
+                   5@ == 125
+                   5@ == 131 
+                   5@ == 140 
+                   5@ == 141 
+                   5@ == 147
+                then
+                    5@ += 1
+                else
+                    break
+                end
+            end
+        end
+        0247: request_model 5@
+        038B: load_requested_models 
+        while 8248: not model 5@ available
+            wait 0
+        end
+        0054: store_player $PLAYER_CHAR position_to 1@ 2@ 3@
+        0170: 4@ = player $PLAYER_CHAR z_angle
+        
+        6@ = 4@
+        if 
+            6@ < 270.0 
+        then
+            6@ += 90.0
+        else
+            6@ -= 270.0
+        end
+        
+        02F7: 7@ = sin 6@
+        7@ *= 7.0
+        1@ += 7@
+        
+        02F6: 7@ = cos 6@
+        7@ *= 7.0
+        2@ += 7@
+        
+        if 
+            4@ > 180.0
+        then 
+            4@ -= 180.0 
+        else 
+            4@ += 180.0
+        end 
+        
+        00A5: 0@ = create_car 5@ at 1@ 2@ 3@
+        4@ -= 90.0
+        0175: set_car 0@ z_angle_to 4@
+        020A: set_car 0@ door_status_to 0 
+        0249: release_model 5@
+        01C3: remove_references_to_car 0@
+        
+        break
+    end
+    // close menu
+    if 
+        10@ == -2
+    then
+        break
+    end
+end
+
+0DF6: 12@ = get_menu_active_item_index
+
+// wait to show what was selected and not to trigger player controls with current touch
+wait 100           
+
+// enable hud
+0DD9: write_mem_addr 14@ value 15@ size 4 add_ib 0 protect 0
+         
+0DF3: delete_menu
+01B4: set_player $PLAYER_CHAR frozen_state 1
+0DDC: set_mutex_var 0 to 0      
+
+end_thread
+
+:eint_hud_disabled
+hex
+    "Marketing_HudDisabled" 00
+end           
+
+:menu_desc
+hex
+    // flags
+    03 00 00 00
+    // title
+    "CAR" 20 "SPAWNER" 00
+    // close button
+    "CLOSE" 00
+    // items
+    "LANDSTK" 00
+    "IDAHO" 00
+    "STINGER" 00
+    "LINERUN" 00
+    "PEREN" 00
+    "SENTINL" 00
+    "PATRIOT" 00
+    "FIRETRK" 00
+    "TRASHM" 00
+    "STRETCH" 00
+    "MANANA" 00
+    "INFERNS" 00
+    "BLISTA" 00
+    "PONY" 00
+    "MULE" 00
+    "CHEETAH" 00
+    "AMBULAN" 00
+    "FBICAR" 00
+    "MOONBM" 00
+    "ESPERAN" 00
+    "TAXI" 00
+    "KURUMA" 00
+    "BOBCAT" 00
+    "WHOOPEE" 00
+    "BFINJC" 00
+    "MANANA" 00
+    "POLICAR" 00
+    "ENFORCR" 00
+    "SECURI" 00
+    "BANSHEE" 00
+    "PREDATR" 00
+    "BUS" 00		
+    "RHINO" 00
+    "BARRCKS" 00
+    "DODO" 00
+    "COACH" 00
+    "CABBIE" 00
+    "STALION" 00
+    "RUMPO" 00
+    "BELLYUP" 00
+    "MRWONGS" 00
+    "MAFIACR" 00
+    "YARDICR" 00
+    "YAKUZCR" 00
+    "DIABLCR" 00
+    "COLOMCR" 00
+    "HOODSCR" 00
+    "SPEEDER" 00	
+    "REEFER" 00
+    "PANLANT" 00
+    "FLATBED" 00
+    "YANKEE" 00
+    "BORGNIN" 00
+    "TOYZ" 00
+    "GHOST" 00
+    00
+end

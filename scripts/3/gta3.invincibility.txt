@@ -1,0 +1,76 @@
+{$CLEO .csa}
+
+thread 'INVINC' 
+wait 1000
+
+0DD0: 10@ = get_label_addr @e_ped_pool
+0DD1: 10@ = get_func_addr_by_cstr_name 10@
+
+while true
+    wait 100 
+    if 
+        8256: not player $PLAYER_CHAR defined
+    then
+        continue
+    end
+    0223: set_actor $PLAYER_ACTOR health_to 200
+    02AB: set_actor $PLAYER_ACTOR immunities 1 1 1 1 1
+    if
+        00DF: actor $PLAYER_ACTOR driving 
+    then 
+        03C0: 2@ = actor $PLAYER_ACTOR car
+        0224: set_car 2@ health_to 2000 
+        02AC: set_car 2@ immunities 1 1 1 1 1
+        0441: 3@ = car 2@ model
+        if and            
+            02BF: car 2@ sunk
+            3@ <> #PREDATOR
+            3@ <> #SPEEDER
+            3@ <> #REEFER
+            3@ <> #GHOST
+        then
+            0054: store_player $PLAYER_CHAR position_to 3@ 4@ 5@ 
+            02C1: set 3@ 4@ 5@ to_car_path_coords_closest_to 3@ 4@ 5@ 
+            5@ += 0.5
+            0055: put_player $PLAYER_CHAR at 3@ 4@ 5@
+            continue
+        end        
+    end
+    var
+        0@ : Integer
+        1@ : Integer
+    end
+    0DD8: 0@ = read_mem_addr 10@ size 4 fix_ib 0
+    0DD8: 0@ = read_mem_addr 0@ size 4 fix_ib 0
+    0006: 1@ = $PLAYER_ACTOR // integer values
+    1@ /= 256 
+    1@ *= 1560 
+    0@ += 1@
+    0@ += 0x126
+    0DD8: 0@ = read_mem_addr 0@ size 1 fix_ib 0
+    0@ /= 8             //  >> 3
+    1@ = 1
+    2@ = 0
+    while 1@ < 32
+        if 
+            0@ == 1@
+        then
+            2@ = 1
+            break
+        end     
+        1@ += 2
+    end
+    if
+        2@ == 1
+    then
+        0054: store_player $PLAYER_CHAR position_to 3@ 4@ 5@ 
+        02C0: set 3@ 4@ 5@ to_ped_path_coords_closest_to 3@ 4@ 5@
+        5@ += 0.5
+        0055: put_player $PLAYER_CHAR at 3@ 4@ 5@
+    end                                 
+end
+
+:e_ped_pool
+hex
+    "_ZN6CPools11ms_pPedPoolE" 00
+end

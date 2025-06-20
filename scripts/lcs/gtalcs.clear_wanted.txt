@@ -1,0 +1,24 @@
+{$CLEO .csi}
+
+thread 'CLRWNTD'
+
+var 
+    0@ : Integer  // general purporse
+end
+
+0DD5: 0@ = get_platform
+if 
+    0@ == 1
+then
+    008B: 0@ = $537 // player handle on Android
+else
+    008B: 0@ = $536 // player handle on PSP
+end
+     
+if 
+    025B: player 0@ defined
+then
+    0115: clear_wanted_level 0@
+end
+
+end_thread

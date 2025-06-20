@@ -1,0 +1,225 @@
+{$CLEO .csi}
+
+/*
+    Car spawner for GTA VC   
+    Controls (touch points are explained in CLEO Android readme):
+      activation - thru CLEO menu
+      prev vehicle - touch point 2
+      next vehicle - touch point 8
+      select - touch point 5
+      exit - any other touch point
+*/
+
+03A4: name_thread 'CARSPWN' 
+if or
+    00E0: player $303 driving
+    not player.Defined($303)
+then
+    end_thread
+end     
+
+if
+    5@ == 0
+then     
+    5@ = 130
+end
+
+0DD0: 0@ = get_label_addr @efloat_bigmsg_alpha
+0DD1: 12@ = get_func_addr_by_cstr_name 0@
+
+:CARSPWN_69
+wait 0
+//02A3: toggle_widescreen 1 
+0DDC: set_mutex_var 0 to 1
+
+03E5: text_box 'CSPWN_1'
+ 
+player.CanMove($303) = false
+camera.SetBehindPlayer()
+
+wait 500
+jump @CARSPWN_95
+
+:CARSPWN_83
+wait 0 
+5@ = 130 // integer values 
+
+:CARSPWN_95
+01E5: text_1number_highpriority 'NUMBER' 5@ flag 2000 time 1 
+Model.Load(5@)
+038B: load_requested_models 
+
+:CARSPWN_120
+wait 0 
+if 
+   Model.Available(5@)
+else_jump @CARSPWN_120 
+04C4: create_coordinate 0@ 1@ 2@ from_actor $304 offset 0.2 4.8 0.0 
+0170: 3@ = player $303 z_angle 
+if 
+  3@ > 180.0 // floating-point values 
+else_jump @CARSPWN_215 
+3@ -= 180.0 // floating-point values 
+jump @CARSPWN_225 
+
+:CARSPWN_215
+3@ += 180.0 // floating-point values 
+
+:CARSPWN_225
+4@ = Car.Create(5@, 0@, 1@, 2@)
+3@ -= 90.0
+Car.Angle(4@) = 3@
+020A: set_car 4@ door_status_to 2 
+Model.Destroy(5@)
+wait 100
+
+:CARSPWN_262
+wait 0
+0DD9: write_mem_addr 12@ value 255.0 size 4 add_ib 0 protect 0
+00BA: text_styled 'CSPWN_4' 1000 ms 1 
+if 
+    0442:   player $303 in_car 4@
+then
+    jump @END_TRUE
+end 
+
+0DE0: 0@ = get_touch_point_state 5 mintime 0
+0DE0: 1@ = get_touch_point_state 4 mintime 0
+0DE0: 2@ = get_touch_point_state 6 mintime 0
+if and
+    0@ == 1
+    1@ == 0
+    2@ == 0        
+jf @CARSPWN_315
+
+:END_TRUE 
+020A: set_car 4@ door_status_to 0
+car.RemoveReferences(4@) 
+03D5: remove_text 'NUMBER' 
+03E5: text_box 'CSPWN_2'
+player.CanMove($303) = true
+jump @end_thread 
+
+:CARSPWN_315
+wait 0
+if or
+    player.Wasted($303)
+    not player.Defined($303)
+then
+    jump @END_FALSE
+end
+
+0DE0: 0@ = get_touch_point_state 1 mintime 500
+0DE0: 1@ = get_touch_point_state 4 mintime 500
+0DE0: 2@ = get_touch_point_state 7 mintime 500
+if or
+    0@ == 1 // touch point 1 is pressed
+    1@ == 1 // touch point 4 is pressed
+    2@ == 1 // touch point 7 is pressed
+then
+    jump @END_FALSE
+end 
+0DE0: 0@ = get_touch_point_state 3 mintime 500
+0DE0: 1@ = get_touch_point_state 6 mintime 500
+0DE0: 2@ = get_touch_point_state 9 mintime 500
+if or
+    0@ == 1 // touch point 3 is pressed
+    1@ == 1 // touch point 6 is pressed
+    2@ == 1 // touch point 9 is pressed
+then
+    jump @END_FALSE
+end  
+jump @CARSPWN_364
+
+:END_FALSE
+car.Destroy(4@)
+03D5: remove_text 'NUMBER' 
+player.CanMove($303) = true
+03E5: text_box 'CSPWN_3'
+wait 1000
+jump @end_thread
+
+:CARSPWN_364
+0DE0: 0@ = get_touch_point_state 8 mintime 0
+if 
+    0@ == 1
+else_jump @CARSPWN_474 
+Car.Destroy(4@)
+03D5: remove_text 'NUMBER' 
+if 
+   not 5@ == 236 // integer values 
+else_jump @CARSPWN_83 
+5@ += 1 // integer values 
+if and
+   not 5@ == 165 // integer values 
+   not 5@ == 180 // integer values 
+   not 5@ == 181 // integer values 
+   not 5@ == 195 // integer values 
+   not 5@ == 171
+   not 5@ == 194
+   not 5@ == 231
+else_jump @CARSPWN_603 
+jump @CARSPWN_95 
+
+:CARSPWN_474
+0DE0: 0@ = get_touch_point_state 2 mintime 0
+if 
+    0@ == 1 
+else_jump @CARSPWN_262
+Car.Destroy(4@)
+03D5: remove_text 'NUMBER' 
+if 
+   not 5@ == 130 // integer values 
+else_jump @CARSPWN_584 
+5@ -= 1 // integer values 
+if and
+   not 5@ == 165 // integer values 
+   not 5@ == 180 // integer values 
+   not 5@ == 181 // integer values 
+   not 5@ == 195 // integer values 
+   not 5@ == 171
+   not 5@ == 194
+   not 5@ == 231   
+else_jump @CARSPWN_664 
+jump @CARSPWN_95 
+
+:CARSPWN_584
+5@ = 236 // integer values 
+jump @CARSPWN_95 
+
+:CARSPWN_603
+if or
+  5@ == 165 // integer values 
+  5@ == 180 // integer values 
+  5@ == 181 // integer values 
+  5@ == 195 // integer values 
+  5@ == 171
+  5@ == 194
+  5@ == 231  
+else_jump @CARSPWN_95 
+5@ += 1 // integer values 
+jump @CARSPWN_603 
+
+:CARSPWN_664
+if or
+  5@ == 165 // integer values 
+  5@ == 180 // integer values 
+  5@ == 181 // integer values 
+  5@ == 195 // integer values 
+  5@ == 171
+  5@ == 194
+  5@ == 231    
+else_jump @CARSPWN_95 
+5@ -= 1 // integer values 
+jump @CARSPWN_664
+
+:end_thread
+wait 0
+//02A3: toggle_widescreen 0 
+0DDC: set_mutex_var 0 to 0
+end_thread
+
+:efloat_bigmsg_alpha
+hex
+    "BigMessageAlpha" 00
+end

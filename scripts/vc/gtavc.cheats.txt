@@ -1,0 +1,1282 @@
+{$CLEO .csi}
+
+thread 'CHEATS'
+var 
+    0@ : Integer
+    10@ : Integer // selected item index
+    11@ : Integer
+    12@ : Integer // active item index
+    14@ : Integer
+    15@ : Integer
+end
+
+0DDD: 0@ = get_mutex_var 0
+if or
+    0@ == 1  
+    8256: not player $303 defined        
+then
+    end_thread
+end
+
+0DDC: set_mutex_var 0 to 1
+01B4: set_player $303 frozen_state 0
+
+0DD0: 0@ = get_label_addr @menu_desc
+0DF2: create_menu 0@ items 57
+0DF5: set_menu_active_item_index 12@
+
+0DD0: 0@ = get_label_addr @efunc_CPad_AddToPCCheatString
+0DD1: 11@ = get_func_addr_by_cstr_name 0@
+
+// touch handle loop
+while true
+    wait 0
+    // resets menu touch item index as well
+    0DF4: 10@ = get_menu_touched_item_index maxtime 100
+    // activate cheat
+    if and
+        10@ >= 0
+        10@ < 57
+    then
+        gosub @activate
+        break
+    end
+    // close menu
+    if 
+        10@ == -2
+    then
+        break
+    end
+end
+
+0DF6: 12@ = get_menu_active_item_index
+
+// wait to show what was selected and not to trigger player controls with current touch
+wait 100           
+         
+0DF3: delete_menu
+01B4: set_player $303 frozen_state 1
+0DDC: set_mutex_var 0 to 0      
+
+end_thread
+
+:activate
+if
+	10@ == 0
+then
+	gosub @T
+	gosub @H
+	gosub @U
+	gosub @G
+	gosub @S
+	gosub @T
+	gosub @O
+	gosub @O
+	gosub @L
+	gosub @S
+end
+if
+	10@ == 1
+then
+	gosub @P
+	gosub @R
+	gosub @O
+	gosub @F
+	gosub @E
+	gosub @S
+	gosub @S
+	gosub @I
+	gosub @O
+	gosub @N
+	gosub @A
+	gosub @L
+	gosub @T
+	gosub @O
+	gosub @O
+	gosub @L
+	gosub @S
+end
+if
+	10@ == 2
+then
+	gosub @N
+	gosub @U
+	gosub @T
+	gosub @T
+	gosub @E
+	gosub @R
+	gosub @T
+	gosub @O
+	gosub @O
+	gosub @L
+	gosub @S
+end
+if
+	10@ == 3
+then
+	gosub @A
+	gosub @S
+	gosub @P
+	gosub @I
+	gosub @R
+	gosub @I
+	gosub @N
+	gosub @E
+end
+if
+	10@ == 4
+then
+	gosub @P
+	gosub @R
+	gosub @E
+	gosub @C
+	gosub @I
+	gosub @O
+	gosub @U
+	gosub @S
+	gosub @P
+	gosub @R
+	gosub @O
+	gosub @T
+	gosub @E
+	gosub @C
+	gosub @T
+	gosub @I
+	gosub @O
+	gosub @N
+end
+if
+	10@ == 5
+then
+	gosub @I
+	gosub @C
+	gosub @A
+	gosub @N
+	gosub @T
+	gosub @T
+	gosub @A
+	gosub @K
+	gosub @E
+	gosub @I
+	gosub @T
+	gosub @A
+	gosub @N
+	gosub @Y
+	gosub @M
+	gosub @O
+	gosub @R
+	gosub @E
+end
+if
+	10@ == 6
+then
+	gosub @Y
+	gosub @O
+	gosub @U
+	gosub @W
+	gosub @O
+	gosub @N
+	gosub @T
+	gosub @T
+	gosub @A
+	gosub @K
+	gosub @E
+	gosub @M
+	gosub @E
+	gosub @A
+	gosub @L
+	gosub @I
+	gosub @V
+	gosub @E
+end
+if
+	10@ == 7
+then
+	gosub @L
+	gosub @E
+	gosub @A
+	gosub @V
+	gosub @E
+	gosub @M
+	gosub @E
+	gosub @A
+	gosub @L
+	gosub @O
+	gosub @N
+	gosub @E
+end
+if
+	10@ == 8
+then
+    gosub @A
+    gosub @I
+    gosub @R
+    gosub @S
+    gosub @H
+    gosub @I
+    gosub @P
+end
+if
+	10@ == 9
+then
+	gosub @F
+	gosub @A
+	gosub @N
+	gosub @N
+	gosub @Y
+	gosub @M
+	gosub @A
+	gosub @G
+	gosub @N
+	gosub @E
+	gosub @T
+end
+if
+	10@ == 10
+then
+	gosub @C
+	gosub @E
+	gosub @R
+	gosub @T
+	gosub @A
+	gosub @I
+	gosub @N
+	gosub @D
+	gosub @E
+	gosub @A
+	gosub @T
+	gosub @H
+end
+if
+	10@ == 11
+then
+	gosub @D
+	gosub @E
+	gosub @E
+	gosub @P
+	gosub @F
+	gosub @R
+	gosub @I
+	gosub @E
+	gosub @D
+	gosub @M
+	gosub @A
+	gosub @R
+	gosub @S
+	gosub @B
+	gosub @A
+	gosub @R
+	gosub @S
+end
+if
+	10@ == 12
+then
+	gosub @P
+	gosub @R
+	gosub @O
+	gosub @G
+	gosub @R
+	gosub @A
+	gosub @M
+	gosub @M
+	gosub @E
+	gosub @R
+end
+if
+	10@ == 13
+then
+	gosub @S
+	gosub @T
+	gosub @I
+	gosub @L
+	gosub @L
+	gosub @L
+	gosub @I
+	gosub @K
+	gosub @E
+	gosub @D
+	gosub @R
+	gosub @E
+	gosub @S
+	gosub @S
+	gosub @I
+	gosub @N
+	gosub @G
+	gosub @U
+	gosub @P
+end
+if
+	10@ == 14
+then
+	gosub @C
+	gosub @H
+	gosub @E
+	gosub @A
+	gosub @T
+	gosub @S
+	gosub @H
+	gosub @A
+	gosub @V
+	gosub @E
+	gosub @B
+	gosub @E
+	gosub @E
+	gosub @N
+	gosub @C
+	gosub @R
+	gosub @A
+	gosub @C
+	gosub @K
+	gosub @E
+	gosub @D
+end
+if
+	10@ == 15
+then
+	gosub @L
+	gosub @O
+	gosub @O
+	gosub @K
+	gosub @L
+	gosub @I
+	gosub @K
+	gosub @E
+	gosub @L
+	gosub @A
+	gosub @N
+	gosub @C
+	gosub @E
+end
+if
+	10@ == 16
+then
+	gosub @M
+	gosub @Y
+	gosub @S
+	gosub @O
+	gosub @N
+	gosub @I
+	gosub @S
+	gosub @A
+	gosub @L
+	gosub @A
+	gosub @W
+	gosub @Y
+	gosub @E
+	gosub @R
+end
+if
+	10@ == 17
+then
+	gosub @I
+	gosub @L
+	gosub @O
+	gosub @O
+	gosub @K
+	gosub @L
+	gosub @I
+	gosub @K
+	gosub @E
+	gosub @H
+	gosub @I
+	gosub @L
+	gosub @A
+	gosub @R
+	gosub @Y
+end
+if
+	10@ == 18
+then
+	gosub @R
+	gosub @O
+	gosub @C
+	gosub @K
+	gosub @A
+	gosub @N
+	gosub @D
+	gosub @R
+	gosub @O
+	gosub @L
+	gosub @L
+	gosub @M
+	gosub @A
+	gosub @N
+end
+if
+	10@ == 19
+then
+	gosub @W
+	gosub @E
+	gosub @L
+	gosub @O
+	gosub @V
+	gosub @E
+	gosub @O
+	gosub @U
+	gosub @R
+	gosub @D
+	gosub @I
+	gosub @C
+	gosub @K
+end
+if
+	10@ == 20
+then
+	gosub @O
+	gosub @N
+	gosub @E
+	gosub @A
+	gosub @R
+	gosub @M
+	gosub @E
+	gosub @D
+	gosub @B
+	gosub @A
+	gosub @N
+	gosub @D
+	gosub @I
+	gosub @T
+end
+if
+	10@ == 21
+then
+	gosub @I
+	gosub @D
+	gosub @O
+	gosub @N
+	gosub @T
+	gosub @H
+	gosub @A
+	gosub @V
+	gosub @E
+	gosub @T
+	gosub @H
+	gosub @E
+	gosub @M
+	gosub @O
+	gosub @N
+	gosub @E
+	gosub @Y
+	gosub @S
+	gosub @O
+	gosub @N
+	gosub @N
+	gosub @Y
+end
+if
+	10@ == 22
+then
+	gosub @F
+	gosub @O
+	gosub @X
+	gosub @Y
+	gosub @L
+	gosub @I
+	gosub @T
+	gosub @T
+	gosub @L
+	gosub @E
+	gosub @T
+	gosub @H
+	gosub @I
+	gosub @N
+	gosub @G
+end
+if
+	10@ == 23
+then
+	gosub @P
+	gosub @A
+	gosub @N
+	gosub @Z
+	gosub @E
+	gosub @R
+end
+if
+	10@ == 24
+then
+	gosub @T
+	gosub @R
+	gosub @A
+	gosub @V
+	gosub @E
+	gosub @L
+	gosub @I
+	gosub @N
+	gosub @S
+	gosub @T
+	gosub @Y
+	gosub @L
+	gosub @E
+end
+if
+	10@ == 25
+then
+	gosub @G
+	gosub @E
+	gosub @T
+	gosub @T
+	gosub @H
+	gosub @E
+	gosub @R
+	gosub @E
+	gosub @Q
+	gosub @U
+	gosub @I
+	gosub @C
+	gosub @K
+	gosub @L
+	gosub @Y
+end
+if
+	10@ == 26
+then
+	gosub @G
+	gosub @E
+	gosub @T
+	gosub @T
+	gosub @H
+	gosub @E
+	gosub @R
+	gosub @E
+	gosub @F
+	gosub @A
+	gosub @S
+	gosub @T
+end
+if
+	10@ == 27
+then
+	gosub @G
+	gosub @E
+	gosub @T
+	gosub @T
+	gosub @H
+	gosub @E
+	gosub @R
+	gosub @E
+	gosub @V
+	gosub @E
+	gosub @R
+	gosub @Y
+	gosub @F
+	gosub @A
+	gosub @S
+	gosub @T
+	gosub @I
+	gosub @N
+	gosub @D
+	gosub @E
+	gosub @E
+	gosub @D
+end
+if
+	10@ == 28
+then
+	gosub @G
+	gosub @E
+	gosub @T
+	gosub @T
+	gosub @H
+	gosub @E
+	gosub @R
+	gosub @E
+	gosub @A
+	gosub @M
+	gosub @A
+	gosub @Z
+	gosub @I
+	gosub @N
+	gosub @G
+	gosub @L
+	gosub @Y
+	gosub @F
+	gosub @A
+	gosub @S
+	gosub @T
+end
+if
+	10@ == 29
+then
+	gosub @T
+	gosub @H
+	gosub @E
+	gosub @L
+	gosub @A
+	gosub @S
+	gosub @T
+	gosub @R
+	gosub @I
+	gosub @D
+	gosub @E
+end
+if
+	10@ == 30
+then
+	gosub @R
+	gosub @O
+	gosub @C
+	gosub @K
+	gosub @A
+	gosub @N
+	gosub @D
+	gosub @R
+	gosub @O
+	gosub @L
+	gosub @L
+	gosub @C
+	gosub @A
+	gosub @R
+end
+if
+	10@ == 31
+then
+	gosub @R
+	gosub @U
+	gosub @B
+	gosub @B
+	gosub @I
+	gosub @S
+	gosub @H
+	gosub @C
+	gosub @A
+	gosub @R
+end
+if
+	10@ == 32
+then
+	gosub @B
+	gosub @E
+	gosub @T
+	gosub @T
+	gosub @E
+	gosub @R
+	gosub @T
+	gosub @H
+	gosub @A
+	gosub @N
+	gosub @W
+	gosub @A
+	gosub @L
+	gosub @K
+	gosub @I
+	gosub @N
+	gosub @G
+end
+if
+	10@ == 33
+then
+	gosub @B
+	gosub @I
+	gosub @G
+	gosub @B
+	gosub @A
+	gosub @N
+	gosub @G
+end
+if
+	10@ == 34
+then
+	gosub @M
+	gosub @I
+	gosub @A
+	gosub @M
+	gosub @I
+	gosub @T
+	gosub @R
+	gosub @A
+	gosub @F
+	gosub @F
+	gosub @I
+	gosub @C
+end
+if
+	10@ == 35
+then
+	gosub @A
+	gosub @H
+	gosub @A
+	gosub @I
+	gosub @R
+	gosub @D
+	gosub @R
+	gosub @E
+	gosub @S
+	gosub @S
+	gosub @E
+	gosub @R
+	gosub @S
+	gosub @C
+	gosub @A
+	gosub @R
+end
+if
+	10@ == 36
+then
+	gosub @I
+	gosub @W
+	gosub @A
+	gosub @N
+	gosub @T
+	gosub @I
+	gosub @T
+	gosub @P
+	gosub @A
+	gosub @I
+	gosub @N
+	gosub @T
+	gosub @E
+	gosub @D
+	gosub @B
+	gosub @L
+	gosub @A
+	gosub @C
+	gosub @K
+end
+if
+	10@ == 37
+then
+	gosub @C
+	gosub @O
+	gosub @M
+	gosub @E
+	gosub @F
+	gosub @L
+	gosub @Y
+	gosub @W
+	gosub @I
+	gosub @T
+	gosub @H
+	gosub @M
+	gosub @E
+end
+if
+	10@ == 38
+then
+	gosub @G
+	gosub @R
+	gosub @I
+	gosub @P
+	gosub @I
+	gosub @S
+	gosub @E
+	gosub @V
+	gosub @E
+	gosub @R
+	gosub @Y
+	gosub @T
+	gosub @H
+	gosub @I
+	gosub @N
+	gosub @G
+end
+if
+	10@ == 39
+then
+	gosub @G
+	gosub @R
+	gosub @E
+	gosub @E
+	gosub @N
+	gosub @L
+	gosub @I
+	gosub @G
+	gosub @H
+	gosub @T
+end
+if
+	10@ == 40
+then
+	gosub @S
+	gosub @E
+	gosub @A
+	gosub @W
+	gosub @A
+	gosub @Y
+	gosub @S
+end
+if
+	10@ == 41
+then
+	gosub @W
+	gosub @H
+	gosub @E
+	gosub @E
+	gosub @L
+	gosub @S
+	gosub @A
+	gosub @R
+	gosub @E
+	gosub @A
+	gosub @L
+	gosub @L
+	gosub @I
+	gosub @N
+	gosub @E
+	gosub @E
+	gosub @D
+end
+if
+	10@ == 42
+then
+	gosub @L
+	gosub @O
+	gosub @A
+	gosub @D
+	gosub @S
+	gosub @O
+	gosub @F
+	gosub @L
+	gosub @I
+	gosub @T
+	gosub @T
+	gosub @L
+	gosub @E
+	gosub @T
+	gosub @H
+	gosub @I
+	gosub @N
+	gosub @G
+	gosub @S
+end
+if
+	10@ == 43
+then
+	gosub @H
+	gosub @O
+	gosub @P
+	gosub @I
+	gosub @N
+	gosub @G
+	gosub @I
+	gosub @R
+	gosub @L
+end
+if
+	10@ == 44
+then
+	gosub @A
+	gosub @L
+	gosub @O
+	gosub @V
+	gosub @E
+	gosub @L
+	gosub @Y
+	gosub @D
+	gosub @A
+	gosub @Y
+end
+if
+	10@ == 45
+then
+	gosub @A
+	gosub @P
+	gosub @L
+	gosub @E
+	gosub @A
+	gosub @S
+	gosub @A
+	gosub @N
+	gosub @T
+	gosub @D
+	gosub @A
+	gosub @Y
+end
+if
+	10@ == 46
+then
+	gosub @A
+	gosub @B
+	gosub @I
+	gosub @T
+	gosub @D
+	gosub @R
+	gosub @I
+	gosub @E
+	gosub @G
+end
+if
+	10@ == 47
+then
+	gosub @C
+	gosub @A
+	gosub @N
+	gosub @T
+	gosub @S
+	gosub @E
+	gosub @E
+	gosub @A
+	gosub @T
+	gosub @H
+	gosub @I
+	gosub @N
+	gosub @G
+end
+if
+	10@ == 48
+then
+	gosub @C
+	gosub @A
+	gosub @T
+	gosub @S
+	gosub @A
+	gosub @N
+	gosub @D
+	gosub @D
+	gosub @O
+	gosub @G
+	gosub @S
+end
+if
+	10@ == 49
+then
+	gosub @L
+	gosub @I
+	gosub @F
+	gosub @E
+	gosub @I
+	gosub @S
+	gosub @P
+	gosub @A
+	gosub @S
+	gosub @S
+	gosub @I
+	gosub @N
+	gosub @G
+	gosub @M
+	gosub @E
+	gosub @B
+	gosub @Y
+end
+if
+	10@ == 50
+then
+	gosub @O
+	gosub @N
+	gosub @S
+	gosub @P
+	gosub @E
+	gosub @E
+	gosub @D
+end
+if
+	10@ == 51
+then
+	gosub @B
+	gosub @O
+	gosub @O
+	gosub @O
+	gosub @O
+	gosub @O
+	gosub @O
+	gosub @R
+	gosub @I
+	gosub @N
+	gosub @G
+end
+if
+	10@ == 52
+then
+	gosub @F
+	gosub @I
+	gosub @G
+	gosub @H
+	gosub @T
+	gosub @F
+	gosub @I
+	gosub @G
+	gosub @H
+	gosub @T
+	gosub @F
+	gosub @I
+	gosub @G
+	gosub @H
+	gosub @T
+end
+if
+	10@ == 53
+then
+	gosub @N
+	gosub @O
+	gosub @B
+	gosub @O
+	gosub @D
+	gosub @Y
+	gosub @L
+	gosub @I
+	gosub @K
+	gosub @E
+	gosub @S
+	gosub @M
+	gosub @E
+end
+if
+	10@ == 54
+then
+	gosub @O
+	gosub @U
+	gosub @R
+	gosub @G
+	gosub @O
+	gosub @D
+	gosub @G
+	gosub @I
+	gosub @V
+	gosub @E
+	gosub @N
+	gosub @R
+	gosub @I
+	gosub @G
+	gosub @H
+	gosub @T
+	gosub @T
+	gosub @O
+	gosub @B
+	gosub @E
+	gosub @A
+	gosub @R
+	gosub @A
+	gosub @R
+	gosub @M
+	gosub @S
+end
+if
+	10@ == 55
+then
+	gosub @C
+	gosub @H
+	gosub @I
+	gosub @C
+	gosub @K
+	gosub @S
+	gosub @W
+	gosub @I
+	gosub @T
+	gosub @H
+	gosub @G
+	gosub @U
+	gosub @N
+	gosub @S
+end
+if
+	10@ == 56
+then
+	gosub @C
+	gosub @H
+	gosub @A
+	gosub @S
+	gosub @E
+	gosub @S
+	gosub @T
+	gosub @A
+	gosub @T
+end
+return
+
+:a
+0@ = 0x41
+gosub @put_char
+return
+
+:b
+0@ = 0x42
+gosub @put_char
+return
+
+:c
+0@ = 0x43
+gosub @put_char
+return
+
+:d
+0@ = 0x44
+gosub @put_char
+return
+
+:e
+0@ = 0x45
+gosub @put_char
+return
+
+:f
+0@ = 0x46
+gosub @put_char
+return
+
+:g
+0@ = 0x47
+gosub @put_char
+return
+
+:h
+0@ = 0x48
+gosub @put_char
+return
+
+:i
+0@ = 0x49
+gosub @put_char
+return
+
+:j
+0@ = 0x4A
+gosub @put_char
+return
+
+:k
+0@ = 0x4B
+gosub @put_char
+return
+
+:l
+0@ = 0x4C
+gosub @put_char
+return
+
+:m
+0@ = 0x4D
+gosub @put_char
+return
+
+:n
+0@ = 0x4E
+gosub @put_char
+return
+
+:o
+0@ = 0x4F
+gosub @put_char
+return
+
+:p
+0@ = 0x50
+gosub @put_char
+return
+
+:q
+0@ = 0x51
+gosub @put_char
+return
+
+:r
+0@ = 0x52
+gosub @put_char
+return
+
+:s
+0@ = 0x53
+gosub @put_char
+return
+
+:t
+0@ = 0x54
+gosub @put_char
+return
+
+:u
+0@ = 0x55
+gosub @put_char
+return
+
+:v
+0@ = 0x56
+gosub @put_char
+return
+
+:w
+0@ = 0x57
+gosub @put_char
+return
+
+:x
+0@ = 0x58
+gosub @put_char
+return
+
+:y
+0@ = 0x59
+gosub @put_char
+return
+
+:z
+0@ = 0x5A
+gosub @put_char
+return
+
+:put_char   
+0DDE: call_func 11@ add_ib 0 __unused 'i' 0 __char 'i' 0@
+return
+
+:efunc_CPad_AddToPCCheatString
+hex
+    "_ZN4CPad18AddToPCCheatStringEc" 00
+end
+
+:menu_desc
+hex
+    // flags
+    03 00 00 00
+    // title
+    "CHEATS" 00
+    // close button
+    "CLOSE" 00
+    // items
+    "CHT_0" 00
+    "CHT_1" 00
+    "CHT_2" 00
+    "CHT_3" 00
+    "CHT_4" 00
+    "CHT_5" 00
+    "CHT_6" 00
+    "CHT_7" 00
+    "CHT_8" 00
+    "CHT_9" 00
+    "CHT_10" 00
+    "CHT_11" 00
+    "CHT_12" 00
+    "CHT_13" 00
+    "CHT_14" 00
+    "CHT_15" 00
+    "CHT_16" 00
+    "CHT_17" 00
+    "CHT_18" 00
+    "CHT_19" 00
+    "CHT_20" 00
+    "CHT_21" 00
+    "CHT_22" 00
+    "CHT_23" 00
+    "CHT_24" 00
+    "CHT_25" 00
+    "CHT_26" 00
+    "CHT_27" 00
+    "CHT_28" 00
+    "CHT_29" 00
+    "CHT_30" 00
+    "CHT_31" 00
+    "CHT_32" 00
+    "CHT_33" 00
+    "CHT_34" 00
+    "CHT_35" 00
+    "CHT_36" 00
+    "CHT_37" 00
+    "CHT_38" 00
+    "CHT_39" 00
+    "CHT_40" 00
+    "CHT_41" 00
+    "CHT_42" 00
+    "CHT_43" 00
+    "CHT_44" 00
+    "CHT_45" 00
+    "CHT_46" 00
+    "CHT_47" 00
+    "CHT_48" 00
+    "CHT_49" 00
+    "CHT_50" 00
+    "CHT_51" 00
+    "CHT_52" 00
+    "CHT_53" 00
+    "CHT_54" 00
+    "CHT_55" 00
+    "CHT_56" 00
+    00
+end

@@ -1,0 +1,404 @@
+{$CLEO .csi}
+
+thread 'TLPRT'
+var 
+    0@ : Integer
+    1@ : Integer
+    2@ : Integer
+    3@ : Integer
+    4@ : Float
+    5@ : Float
+    6@ : Float
+    7@ : Float
+    8@ : Float
+    9@ : Float
+    10@ : Integer // selected item index
+    12@ : Integer // active item index
+    14@ : Integer
+    15@ : Integer
+end
+
+0DDD: 0@ = get_mutex_var 0
+if or
+    0@ == 1  
+    8256: not player $PLAYER_CHAR defined        
+then
+    end_thread
+end
+
+0DDC: set_mutex_var 0 to 1
+01B4: set_player $PLAYER_CHAR frozen_state 0
+
+0DD0: 0@ = get_label_addr @menu_desc
+0DF2: create_menu 0@ items 30
+0DF5: set_menu_active_item_index 12@
+
+// disable hud
+0DD0: 0@ = get_label_addr @eint_hud_disabled
+0DD1: 14@ = get_func_addr_by_cstr_name 0@
+0DD8: 15@ = read_mem_addr 14@ size 4 fix_ib 0
+0DD9: write_mem_addr 14@ value 2 size 4 add_ib 0 protect 0
+
+// touch handle loop
+while true
+    wait 0
+    // resets menu touch item index as well
+    0DF4: 10@ = get_menu_touched_item_index maxtime 100
+    // activate
+    if and
+        10@ >= 0
+        10@ < 30
+    then
+        3@ = 10@
+        gosub @get_coords
+        4@ += 7@
+        4@ /= 2.0
+        5@ += 8@
+        5@ /= 2.0
+        6@ += 9@
+        6@ /= 2.0
+        02C1: set 4@ 5@ 6@ to_car_path_coords_closest_to 4@ 5@ 6@
+        0055: put_player $PLAYER_CHAR at 4@ 5@ 6@
+        break
+    end
+    // close menu
+    if 
+        10@ == -2
+    then
+        break
+    end
+end
+
+0DF6: 12@ = get_menu_active_item_index
+
+// wait to show what was selected and not to trigger player controls with current touch
+wait 100           
+
+// enable hud
+0DD9: write_mem_addr 14@ value 15@ size 4 add_ib 0 protect 0
+         
+0DF3: delete_menu
+01B4: set_player $PLAYER_CHAR frozen_state 1
+0DDC: set_mutex_var 0 to 0      
+
+end_thread
+
+:get_coords
+if 3@ == 0
+then
+	4@ = 617.442 
+	5@ = -958.347 
+	6@ = 6.26083 
+	7@ = 1065.44 
+	8@ = -908.347 
+	9@ = 206.261
+end
+if 3@ == 1 
+then	
+	4@ = 751.68 
+	5@ = -1178.22 
+	6@ = -13.8723 
+	7@ = 1065.68 
+	8@ = -958.725 
+	9@ = 136.128
+end
+if 3@ == 2 
+then	
+	4@ = -1394.5 
+	5@ = 93.4441 
+	6@ = -46.7412 
+	7@ = -867.52 
+	8@ = 704.544 
+	9@ = 253.344
+end
+if 3@ == 3 
+then	
+	4@ = 1065.88 
+	5@ = -1251.55 
+	6@ = -13.5049 
+	7@ = 1501.88 
+	8@ = -1069.93 
+	9@ = 136.495
+end
+if 3@ == 4 
+then	
+	4@ = 1363.68 
+	5@ = -1069.65 
+	6@ = -18.8643 
+	7@ = 1815.68 
+	8@ = -613.646 
+	9@ = 131.136
+end
+if 3@ == 5 
+then	
+	4@ = 1065.88 
+	5@ = -1069.85 
+	6@ = 1.49868 
+	7@ = 1363.38 
+	8@ = -742.054 
+	9@ = 151.499
+end
+if 3@ == 6 
+then	
+	4@ = 745.421 
+	5@ = -908.289 
+	6@ = -21.203 
+	7@ = 1065.42 
+	8@ = -463.69 
+	9@ = 129.593
+end
+if 3@ == 7 
+then	
+	4@ = 745.378 
+	5@ = -463.616 
+	6@ = -22.6676 
+	7@ = 1065.38 
+	8@ = -282.616 
+	9@ = 147.332
+end
+if 3@ == 8 
+then	
+	4@ = 745.421 
+	5@ = -282.4 
+	6@ = -13.4117 
+	7@ = 1065.42 
+	8@ = -78.7699 
+	9@ = 136.588
+end
+if 3@ == 9 
+then	
+	4@ = 1065.9 
+	5@ = -512.324 
+	6@ = -14.296 
+	7@ = 1388.9 
+	8@ = -78.324 
+	9@ = 135.704
+end
+if 3@ == 10 
+then	
+	4@ = 745.979 
+	5@ = -78.1778 
+	6@ = -48.5832 
+	7@ = 1388.98 
+	8@ = 322.676 
+	9@ = 101.417
+end
+if 3@ == 11 
+then	
+	4@ = 1389.37 
+	5@ = -613.467 
+	6@ = -29.883 
+	7@ = 1797.6 
+	8@ = 199.628 
+	9@ = 120.117
+end
+if 3@ == 12 
+then	
+	4@ = 1066.1 
+	5@ = -741.806 
+	6@ = -34.2068 
+	7@ = 1363.6 
+	8@ = -512.806 
+	9@ = 115.793
+end
+if 3@ == 13 
+then	
+	4@ = 1135.8 
+	5@ = -695.021 
+	6@ = 6.9661 
+	7@ = 1182.36 
+	8@ = -631.021 
+	9@ = 56.9661
+end
+if 3@ == 14 
+then	
+	4@ = 1136.09 
+	5@ = -609.976 
+	6@ = 6.287 
+	7@ = 1182.09 
+	8@ = -521.167 
+	9@ = 56.287
+end
+if 3@ == 15 
+then	
+	4@ = 617.151 
+	5@ = -1329.72 
+	6@ = -117.535 
+	7@ = 1902.66 
+	8@ = 434.115 
+	9@ = 482.465
+end
+if 3@ == 16 
+then	
+	4@ = 444.768 
+	5@ = -958.298 
+	6@ = 30.7441 
+	7@ = 614.878 
+	8@ = -908.298 
+	9@ = 180.744
+end
+if 3@ == 17 
+then	
+	4@ = 1363.77 
+	5@ = -613.339 
+	6@ = -4.43849 
+	7@ = 1389.17 
+	8@ = -512.539 
+	9@ = 70.4322
+end
+if 3@ == 18 
+then	
+	4@ = 239.878 
+	5@ = -411.617 
+	6@ = 7.629 
+	7@ = 614.322 
+	8@ = -61.6167 
+	9@ = 163.819
+end
+if 3@ == 19 
+then	
+	4@ = -225.764 
+	5@ = -412.604 
+	6@ = -9.536 
+	7@ = 116.236 
+	8@ = 160.496 
+	9@ = 120.271
+end
+if 3@ == 20 
+then	
+	4@ = 199.766 
+	5@ = -1672.42 
+	6@ = -61.7588 
+	7@ = 577.766 
+	8@ = -1059.93 
+	9@ = 432.688
+end
+if 3@ == 21 
+then	
+	4@ = -224.438 
+	5@ = -1672.05 
+	6@ = -61.3183 
+	7@ = 199.562 
+	8@ = -1004.45 
+	9@ = 432.352
+end
+if 3@ == 22 
+then	
+	4@ = 200.107 
+	5@ = -1059.19 
+	6@ = -0.000 
+	7@ = 615.107 
+	8@ = -412.193 
+	9@ = 198.864
+end
+if 3@ == 23 
+then	
+	4@ = -121.567 
+	5@ = -1003.07 
+	6@ = -46.7463 
+	7@ = 199.271 
+	8@ = -413.068 
+	9@ = 224.163
+end
+if 3@ == 24 
+then	
+	4@ = 117.268 
+	5@ = -411.622 
+	6@ = 0.0001 
+	7@ = 239.268 
+	8@ = -61.6218 
+	9@ = 166.36
+end
+if 3@ == 25 
+then	
+	4@ = 117.236 
+	5@ = -61.1105 
+	6@ = -17.071 
+	7@ = 615.236 
+	8@ = 268.889 
+	9@ = 83.754
+end
+if 3@ == 26 
+then	
+	4@ = -1632.97 
+	5@ = -1344.71 
+	6@ = -45.9404 
+	7@ = -468.629 
+	8@ = -268.443 
+	9@ = 254.696
+end
+if 3@ == 27
+then	
+	4@ = -811.835 
+	5@ = -268.074 
+	6@ = -45.8745 
+	7@ = -371.041 
+	8@ = 92.7263 
+	9@ = 254.241
+end
+if 3@ == 28 
+then	
+	4@ = -867.229 
+	5@ = 93.3882 
+	6@ = -50.1134 
+	7@ = -266.914 
+	8@ = 650.058 
+	9@ = 250.426
+end
+if 3@ == 29 
+then	
+	4@ = -1407.57 
+	5@ = -267.966 
+	6@ = -49.6792 
+	7@ = -812.306 
+	8@ = 92.7559 
+	9@ = 250.437
+end
+return
+
+:eint_hud_disabled
+hex
+    "Marketing_HudDisabled" 00
+end           
+
+:menu_desc
+hex
+    // flags
+    03 00 00 00
+    // title
+    "TELEPORT" 00
+    // close button
+    "CLOSE" 00
+    // items
+    "ROADBR1" 00
+    "PORT_W" 00
+    "BIG_DAM" 00
+    "PORT_S" 00
+    "PORT_E" 00
+    "PORT_I" 00
+    "CHINA" 00
+    "REDLIGH" 00
+    "TOWERS" 00
+    "LITTLEI" 00
+    "HARWOOD" 00
+    "EASTBAY" 00
+    "S_VIEW" 00
+    "Portland" 20 "police" 00
+    "Portland" 20 "hospital" 00
+    "IND_ZON" 00
+    "ROADBR2" 00
+    "Marko's" 20 "bistro" 00
+    "CONSTRU" 00
+    "STADIUM" 00
+    "YAKUSA" 00
+    "SHOPING" 00
+    "COM_EAS" 00
+    "PARK" 00
+    "UNIVERS" 00
+    "HOSPI_2" 00
+    "AIRPORT" 00
+    "PROJECT" 00
+    "SWANKS" 00
+    "SUB_IND" 00    
+    00
+end

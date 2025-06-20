@@ -1,0 +1,61 @@
+{$CLEO .csa}
+
+thread 'INVINC'
+
+var 
+    0@ : Integer  // general purporse
+    1@ : Integer  // player actor/char
+    2@ : Integer  // player's car
+    3@ : Float    // player/vehicle x
+    4@ : Float    // player/vehicle y
+    5@ : Float    // player/vehicle z
+    20@ : Integer // player handle
+end
+ 
+wait 1000
+
+while true
+    wait 100
+    0DD5: 0@ = get_platform
+    if 
+        0@ == 1
+    then
+        008B: 20@ = $537 // player handle on Android
+    else
+        008B: 20@ = $536 // player handle on PSP
+    end     
+    if 
+        825B: not player 20@ defined
+    then
+        continue
+    end
+    01FA: get_player_char 20@ store_to 1@
+    0228: set_actor 1@ health_to 1000
+    02B0: set_actor 1@ immunities 1 1 1 1 1
+    if
+        00E4: is_char_in_any_car 1@
+    then 
+        03C5: store_car_char_is_in_no_save 1@ store_to 2@
+        0229: set_car 2@ health_to 2000 
+        02B1: set_car 2@ immunities 1 1 1 1 1
+        if and            
+            02C4: is_car_in_water 2@
+            84AD: not player 20@ driving_boat
+        then
+            0054: get_player_coordinates 20@ store_to 3@ 4@ 5@
+            02C6: get_closest_car_node 3@ 4@ 5@ store_to 3@ 4@ 5@
+            5@ += 0.5
+            0055: set_player_coordinates 20@ to 3@ 4@ 5@
+            continue
+        end             
+    end
+    if
+        04B2: is_char_in_water 1@
+    then
+        0054: get_player_coordinates 20@ store_to 3@ 4@ 5@ 
+        02C5: get_closest_char_node 3@ 4@ 5@ store_to 3@ 4@ 5@
+        5@ += 0.5
+        0055: set_player_coordinates 20@ to 3@ 4@ 5@
+    end                                  
+end
+

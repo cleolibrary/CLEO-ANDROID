@@ -1,0 +1,29 @@
+{$CLEO .csa}
+
+thread 'NOTIRE'
+
+var 
+    0@ : Integer  // general purporse
+    1@ : Integer  // player handle
+end
+ 
+wait 1000
+
+while true
+    wait 100
+    0DD5: 0@ = get_platform
+    if 
+        0@ == 1
+    then
+        008B: 1@ = $537 // player handle on Android
+    else
+        008B: 1@ = $536 // player handle on PSP
+    end     
+    if 
+        825B: not player 1@ defined
+    then
+        continue
+    end
+    0335: set_player_never_gets_tired 1@ set 1
+end
+

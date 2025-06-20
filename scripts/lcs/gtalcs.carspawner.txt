@@ -1,0 +1,205 @@
+{$CLEO .csi}
+
+thread 'CARSPWN'
+
+var 
+    0@ : Integer  // general purporse
+    1@ : Integer  // general purporse
+    2@ : Integer  // general purporse
+    5@ : Float    // player/vehicle x
+    6@ : Float    // player/vehicle y
+    7@ : Float    // player/vehicle z
+    8@ : Float    // player/vehicle heading
+    10@ : Integer // selected item index
+    11@ : Integer // active item index
+    20@ : Integer // player handle
+end  
+
+0DD5: 0@ = get_platform
+if 
+    0@ == 1
+then
+    008B: 20@ = $537 // player handle on Android
+else
+    008B: 20@ = $536 // player handle on PSP
+end
+
+0DDD: 0@ = get_mutex_var 0
+if or
+    0@ == 1
+    825B: not player 20@ defined 
+then
+    end_thread
+end
+
+0DDC: set_mutex_var 0 to 1    
+    
+0DD0: 0@ = get_label_addr @menu_desc
+0DF2: create_menu 0@ items 78
+0DF5: set_menu_active_item_index 11@
+    
+01B9: set_player_control 20@ to 0
+    
+// touch handle loop
+while true
+    wait 0
+    // resets menu touch item index as well
+    0DF4: 10@ = get_menu_touched_item_index maxtime 100
+    // spawn car
+    if
+        10@ >= 0
+    then
+        0@ = 10@
+        0@ += 130
+        if
+            10@ >= 39
+        then
+           0@ += 1
+        end
+        if
+            10@ >= 61
+        then
+           0@ += 1
+        end        
+        if
+            10@ >= 65
+        then
+           0@ += 5
+        end 
+        if
+            10@ >= 74
+        then
+           0@ += 2
+        end   
+        024C: request_model 0@ 
+        0390: load_requested_models 
+        while 824D: not model 0@ available
+            wait 0
+        end
+        01FA: get_player_char 20@ store_to 1@
+        04C9: get_offset_from_char_in_world_coords 1@ offset 0.2 4.8 0.0 store_to 5@ 6@ 7@
+        0175: get_player_heading 20@ store_to 8@
+        if 
+            8@ > 180.0 
+        then 
+            8@ -= 180.0 
+        else
+            8@ += 180.0
+        end
+        8@ -= 90.0 
+        00A5: create_car 0@ at 5@ 6@ 7@ store_to 2@   
+        017A: set_car_heading 2@ to 8@
+        020F: lock_car_doors 2@ mode 0
+        01C8: remove_references_to_car 2@ 
+        024E: release_model 0@        
+        break
+    end
+    // close menu
+    if 
+        10@ == -2
+    then
+        break
+    end
+end
+
+0DF6: 11@ = get_menu_active_item_index
+
+// wait to show what was selected and not to trigger player controls with current touch
+wait 100     
+0DF3: delete_menu    
+01B9: set_player_control 20@ to 1
+0DDC: set_mutex_var 0 to 0
+
+end_thread     
+
+:menu_desc
+hex
+    // flags
+    03 00 00 00
+    // title
+    "CARSPAWNER" 00
+    // close button
+    "CLOSE" 00
+    // items
+    "SPIDER" 00
+    "LANDSTK" 00
+    "IDAHO" 00
+    "STINGER" 00
+    "LINERUN" 00
+    "PEREN" 00
+    "SENTINL" 00
+    "PATRIOT" 00
+    "FIRETRK" 00
+    "TRASHM" 00
+    "STRETCH" 00
+    "MANANA" 00
+    "INFERNS" 00
+    "BLISTA" 00
+    "PONY" 00
+    "MULE" 00
+    "CHEETAH" 00
+    "AMBULAN" 00
+    "FBICAR" 00
+    "MOONBM" 00
+    "ESPERAN" 00
+    "TAXI" 00
+    "KURUMA" 00
+    "BOBCAT" 00
+    "WHOOPEE" 00
+    "BFINJC" 00
+    "HEARSE" 00
+    "POLICAR" 00
+    "ENFORCR" 00
+    "SECURI" 00
+    "BANSHEE" 00
+    "BUS" 00
+    "RHINO" 00
+    "BARRCKS" 00
+    "DODO" 00
+    "COACH" 00
+    "CABBIE" 00
+    "STALION" 00
+    "RUMPO" 00
+    "BELLYUP" 00
+    "MRWONGS" 00
+    "MAFIACR" 00
+    "YARDICR" 00
+    "YAKUZCR" 00
+    "DIABLCR" 00
+    "COLOMCR" 00
+    "HOODSCR" 00
+    "PANLANT" 00
+    "FLATBED" 00
+    "YANKEE" 00
+    "BORGNIN" 00
+    "Toyz" 20 "Van" 00  // string name instead of gxt one
+    "CAMPVAN" 00
+    "BALLOT" 00
+    "SHELBY" 00
+    "PONTIAC" 00
+    "ESPRIT" 00
+    "BARRACK" 00
+    "HOTROD" 00
+    "SINDACO" 00
+    "FORELLI" 00
+    "GHOST" 00
+    "SPEEDER" 00
+    "REEFER" 00
+    "PREDATR" 00
+    "ANGEL" 00
+    "PIZZABO" 00
+    "NOODLBO" 00
+    "PCJ600" 00
+    "FAGGIO" 00
+    "FREEWAY" 00
+    "ANGEL2" 00
+    "SANCH2" 00
+    "SANCHEZ" 00
+    "Hunter" 00     // no gxt entry
+    "Maveric" 00    // no gxt entry
+    "Polmav" 00     // no gxt entry
+    "Vcnmav" 00     // no gxt entry
+    00
+end
+
+

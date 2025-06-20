@@ -1,0 +1,44 @@
+{$CLEO .csa}
+
+/*
+    Upgrades player's stats
+*/
+
+thread 'STATS'
+    
+while not player.Defined($PLAYER_CHAR)
+    wait 1000
+end
+
+wait 100       
+
+062A: change_float_stat 165 to 2000.0 
+062A: change_float_stat 23 to 1000.0 
+062A: change_float_stat 21 to 0.0 
+0629: change_integer_stat 22 to 1000 
+062A: change_float_stat 80 to 2000.0 
+062A: change_float_stat 225 to 2000.0 
+062A: change_float_stat 223 to 1000.0 
+062A: change_float_stat 229 to 1000.0 
+062A: change_float_stat 230 to 2000.0 
+062A: change_float_stat 24 to 1000.0 
+062A: change_float_stat 69 to 1000.0 
+062A: change_float_stat 70 to 1000.0 
+062A: change_float_stat 71 to 1000.0 
+062A: change_float_stat 72 to 1000.0 
+062A: change_float_stat 73 to 1000.0 
+062A: change_float_stat 74 to 1000.0 
+062A: change_float_stat 75 to 1000.0 
+062A: change_float_stat 76 to 1000.0 
+062A: change_float_stat 77 to 1000.0 
+062A: change_float_stat 78 to 1000.0 
+062A: change_float_stat 160 to 1000.0   
+wait 100
+Actor.Health($PLAYER_ACTOR) = 220
+0627: update_integer_stat 243 to 50 
+0627: update_integer_stat 241 to 50 
+0627: update_integer_stat 231 to 50
+0330: set_player $PLAYER_CHAR infinite_run 1
+0331: set_player $PLAYER_CHAR fast_reload 1
+
+end_thread  

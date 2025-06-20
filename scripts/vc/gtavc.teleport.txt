@@ -1,0 +1,162 @@
+{$CLEO .csi}
+
+thread 'TLPRT'
+var 
+    0@ : Integer
+    1@ : Integer
+    2@ : Integer
+    3@ : Integer
+    4@ : Float
+    5@ : Float
+    6@ : Float
+    7@ : Float
+    8@ : Float
+    9@ : Float
+    10@ : Integer // selected item index
+    12@ : Integer // active item index
+    14@ : Integer
+    15@ : Integer
+end
+
+{while true
+    wait 0
+    if  
+        8256: not player $303 defined
+    then
+        continue
+    end        
+    0054: store_player $303 position_to 4@ 5@ 6@
+    008C: 4@ = float_to_integer 4@ 
+    008C: 5@ = float_to_integer 5@
+    008C: 6@ = float_to_integer 6@
+    02FF: show_text_3numbers GXT 'WHEEL02' numbers 4@ 5@ 6@ time 100 flag 1 
+end}
+
+0DDD: 0@ = get_mutex_var 0
+if or
+    0@ == 1  
+    8256: not player $303 defined        
+then
+    end_thread
+end
+
+0DDC: set_mutex_var 0 to 1
+01B4: set_player $303 frozen_state 0
+
+0DD0: 0@ = get_label_addr @menu_desc
+0DF2: create_menu 0@ items 9
+0DF5: set_menu_active_item_index 12@
+
+// touch handle loop
+while true
+    wait 0
+    // resets menu touch item index as well
+    0DF4: 10@ = get_menu_touched_item_index maxtime 100
+    // activate
+    if and
+        10@ >= 0
+        10@ < 9
+    then
+        3@ = 10@
+        gosub @get_coords
+        04BB: select_interiour 0
+        02C1: set 4@ 5@ 6@ to_car_path_coords_closest_to 4@ 5@ 6@        
+        0055: put_player $303 at 4@ 5@ 6@        
+        break
+    end
+    // close menu
+    if 
+        10@ == -2
+    then
+        break
+    end
+end
+
+0DF6: 12@ = get_menu_active_item_index
+
+// wait to show what was selected and not to trigger player controls with current touch
+wait 100           
+         
+0DF3: delete_menu
+01B4: set_player $303 frozen_state 1
+0DDC: set_mutex_var 0 to 0      
+
+end_thread
+
+:get_coords
+if 3@ == 0
+then
+	4@ = -271.0 
+	5@ = -501.0 
+	6@ = 11.0 
+end
+if 3@ == 1 
+then	
+	4@ = -681.0
+	5@ = -1432.0 
+	6@ = 10.0 
+end
+if 3@ == 2 
+then	
+	4@ = -1431.0 
+	5@ = -807.0 
+	6@ = 14.0 
+end
+if 3@ == 3 
+then	
+	4@ = -1686.0 
+	5@ = -336.0 
+	6@ = 14.0 
+end
+if 3@ == 4 
+then	
+	4@ = -664.0
+	5@ = 739.0
+	6@ = 11.0 
+end
+if 3@ == 5 
+then	
+	4@ = -1099.0
+	5@ = 1328.0
+	6@ = 20.0
+end
+if 3@ == 6 
+then	
+	4@ = 32.0
+	5@ = 961.0
+	6@ = 10.0
+end
+if 3@ == 7 
+then	
+	4@ = 504.0
+	5@ = -81.0
+	6@ = 10.0
+end
+if 3@ == 8 
+then	
+	4@ = 238.0
+	5@ = -1280.0
+	6@ = 11.0
+end
+return
+
+:menu_desc
+hex
+    // flags
+    00 00 00 00
+    // title
+    "TELEPORT" 00
+    // close button
+    "CLOSE" 00
+    // items
+    "Vercetti" 20 "mansion" 00
+    "Docks" 00
+    "Airport" 00
+    "Military" 20 "base" 00
+    "Downtown" 00
+    "Stadium" 00
+    "Movie" 20 "studio" 00
+    "Malibu" 00
+    "Ocean" 20 "view" 00
+    00
+end

@@ -1,0 +1,97 @@
+{$CLEO .csi}
+
+thread 'BDGUARD'
+
+var 
+    0@ : Integer  // general purporse
+    1@ : Integer  // player actor
+    5@ : Float    // player/ped x
+    6@ : Float    // player/ped y
+    7@ : Float    // player/ped z
+    10@ : Integer // bodyguard 
+    11@ : Integer // bodyguard
+    12@ : Integer // bodyguard
+    20@ : Integer // player handle
+end  
+
+0DD5: 0@ = get_platform
+if 
+    0@ == 1
+then
+    008B: 20@ = $537 // player handle on Android
+else
+    008B: 20@ = $536 // player handle on PSP
+end
+
+if
+    825B: not player 20@ defined
+then
+    end_thread
+end
+
+0DDD: 0@ = get_mutex_var 23487
+if
+    0@ == 0
+then
+    gosub @spawn_bodyguards
+    03EA: print_help 'BDGSPWN'
+    0DDC: set_mutex_var 23487 to 1
+else
+    gosub @remove_bodyguards  
+    03EA: print_help 'BDGOFF'  
+    0DDC: set_mutex_var 23487 to 0
+end    
+
+end_thread
+
+:spawn_bodyguards
+gosub @spawn_ped
+10@ = 0@
+gosub @spawn_ped
+11@ = 0@
+gosub @spawn_ped
+12@ = 0@
+return 
+
+:remove_bodyguards
+0@ = 10@
+gosub @remove_ped
+0@ = 11@
+gosub @remove_ped
+0@ = 12@
+gosub @remove_ped
+return
+
+:spawn_ped
+024C: request_model #M4
+0390: load_all_models_now
+while 824D: not has_model_loaded #M4
+    wait 0
+end
+020D: generate_random_float_in_range 1.0 3.0 store_to 5@
+020D: generate_random_float_in_range 1.0 3.0 store_to 6@
+01FA: get_player_char 20@ store_to 1@
+04C9: get_offset_from_char_in_world_coords 1@ offset 5@ 6@ 0.0 store_to 5@ 6@ 7@
+037B: create_random_char 5@ 6@ 7@ store_to 0@
+01CA: dont_remove_char 0@
+01E4: tie_char 0@ to_player 20@
+031E: set_char 0@ running 1
+04FA: set_char_as_player_friend 0@ player 20@ on 1
+056D: set_char_never_targetted 0@ to 1
+0541: set_char_in_players_group_can_fight 0@ can_fight 1
+044B: set_char_suffers_critical_hits 0@ enable 0
+0296: set_char_heed_threats 0@ flag 1          
+02E7: set_char_accuracy 0@ to 100
+0630: set_char_max_health 0@ to 2000
+0228: set_char_health 0@ to 2000
+01B7: give_weapon_to_char 0@ weapon 26 ammo 9999
+024E: release_model #M4
+return
+
+:remove_ped
+if
+    0572: does_char_exist 0@
+then
+    0354: remove_char_elegantly 0@
+end
+return 

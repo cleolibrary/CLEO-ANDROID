@@ -1,0 +1,6 @@
+{$CLEO .csi}
+
+// activates from CLEO menu
+
+0DDC: set_mutex_var 123000 to 2
+end_thread
