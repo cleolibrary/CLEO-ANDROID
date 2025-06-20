@@ -1,6 +1,9 @@
 #pragma once
-
-#include "common.h"
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdarg.h>
+#include <string.h>
 
 enum eGameIdent
 {
@@ -61,22 +64,15 @@ struct cleo_ifs_t
 
 	uint32_t (*GetMainLibraryExecutableSections)(section_t *sections, uint32_t size);
 	void *(*FindExecutablePattern)(const char *pattern, uint32_t index);
-
-#ifdef ANDROID
+	
 	void *(*GetMainLibrarySymbol)(const char *name);
-#endif
 
 	void (*MemWriteArr)(void *addr, uint8_t *arr, uint32_t size, bool protect);
 
-#ifdef ANDROID
 	void (*ReplaceThumbCall)(void *addr, void *func_to);
 	void (*HookThumbFunc)(void *func, uint32_t startSize, void *func_to, void **func_orig);
 	void (*ReplaceArmCall)(void *addr, void *func_to);
 	void (*HookArmFunc)(void *func, uint32_t startSize, void *func_to, void **func_orig);
-#else
-	void (*ReplaceMipsCall)(void *addr, void *func_to);
-	void (*HookMipsFunc)(void *func, uint32_t startSize, void *func_to, void **func_orig);
-#endif
 
 	// ip is a pointer inside scriptHandle structure, the structure is different in all games
 	typedef void (*opcode_handler_t)(void *scriptHandle, uint32_t *ip, uint16_t opcode, const char *name);
